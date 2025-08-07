@@ -391,3 +391,25 @@ Where:
 ## License
 
 This project is proprietary and not open source. All rights reserved. 
+
+## Deep Dive: Project Explaination Folders
+
+Each main server directory—**Backend**, **Frontend**, and **Desktop**—contains a `Project Explaination` folder. These folders provide in-depth documentation for nearly every important file and module in that part of the project. They are designed to help developers, contributors, and reviewers quickly understand the logic, structure, and responsibilities of each file, as well as the data flow and integration points.
+
+### Where to Find Them
+- **Backend:** `Backend/Project Explaination/`
+- **Frontend:** `Frontend/Project Explaination/`
+- **Desktop:** `Desktop/Project Explaination/`
+
+### What You'll Find Inside
+- **File-by-file documentation:** Each file in the codebase (controllers, models, services, routes, components, etc.) has a corresponding markdown file explaining its purpose, main logic, integration points, and any special notes or gotchas.
+- **Module overviews:** High-level explanations of how modules fit together and interact.
+- **Usage notes:** Guidance on what to log or inspect if you encounter unclear logic or bugs.
+- **Integration details:** Descriptions of how files connect to third-party services, other modules, or the rest of the stack.
+
+### How to Use
+- **New developers:** Start by reading the relevant `Project Explaination` files before diving into the code. This will give you a mental map of the system and speed up onboarding.
+- **Debugging:** If you are unsure about a function, class, or integration, check the corresponding markdown file for context and troubleshooting tips.
+- **Documentation-first:** When making major changes, update the relevant markdown file to keep the documentation in sync with the codebase.
+
+--- 
