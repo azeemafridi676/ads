@@ -1,0 +1,212 @@
+<div class="relative min-h-screen bg-black">
+  <!-- Window controls -->
+  <div class="absolute top-0 right-0 p-4 flex space-x-2 z-50" [class.opacity-100]="showControls" [class.opacity-0]="!showControls" [class.transition-opacity]="true" [class.duration-300]="true">
+    <button (click)="minimizeWindow()" class="text-white hover:text-gray-300 focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+      </svg>
+    </button>
+    <button (click)="closeWindow()" class="text-white hover:text-gray-300 focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Video player container -->
+  <div class="video-player-wrapper">
+    <ng-container *ngIf="currentMedia?.type === 'video'">
+      <app-video-player 
+        #videoPlayer
+        [videoPath]="currentMedia?.path || ''"
+        [hasPrevious]="currentQueueIndex > 0"
+        [hasNext]="currentQueueIndex < playQueue.length - 1"
+        (videoEnded)="onMediaEnded()"
+        (videoError)="handleVideoError($event)"
+        (previousClicked)="playPrevious()"
+        (nextClicked)="playNext()">
+      </app-video-player>
+    </ng-container>
+
+    <ng-container *ngIf="currentMedia?.type === 'image'">
+      <div class="image-container">
+        <img [src]="currentMedia?.path"
+             alt="Campaign Image"
+             class="campaign-image"
+             (load)="onImageLoaded()"
+             (error)="onImageError($event)">
+        <div class="image-countdown" *ngIf="remainingTime > 0">
+          {{ formatTime(remainingTime) }}
+        </div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="!currentMedia" class="no-media" id="no-media">
+      {{ noMediaMessage }}
+    </div>
+  </div>
+
+  <!-- Download Queue Section -->
+  <div *ngIf="downloadQueue.length > 0" class="download-queue-wrapper">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold text-gray-800">
+        <i class="ri-download-cloud-line mr-2"></i>Download Queue
+      </h2>
+      <span class="text-sm text-gray-500">{{ downloadQueue.length }} items</span>
+    </div>
+    
+    <div class="download-items">
+      <div *ngFor="let item of downloadQueue" 
+           class="download-item">
+        <div class="download-item-content">
+          <i [class]="item.mediaType === 'video' ? 'ri-video-line' : 'ri-image-line'" 
+             class="text-[#eb7641]"></i>
+          
+          <div class="flex-grow">
+            <p class="font-medium text-gray-800">{{ item.campaignName }}</p>
+            <p class="text-sm" [ngClass]="{
+              'text-blue-500': item.status === 'downloading',
+              'text-green-500': item.status === 'completed',
+              'text-red-500': item.status === 'error',
+              'text-gray-500': item.status === 'pending'
+            }">
+              {{ item.status | titlecase }}
+              <span *ngIf="item.error" class="text-red-500 text-xs ml-2">({{ item.error }})</span>
+            </p>
+          </div>
+
+          <button *ngIf="item.status === 'error'"
+                  (click)="retryDownload(item)"
+                  class="retry-button">
+            <i class="ri-refresh-line mr-1"></i>Retry
+          </button>
+
+          <div *ngIf="item.status === 'downloading'" class="download-spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.video-player-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+app-video-player {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+}
+
+.campaign-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.image-countdown {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #eb7641;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.no-media {
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.download-queue-wrapper {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 40;
+}
+
+.download-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.download-item {
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  margin-bottom: 8px;
+  transition: background-color 0.2s;
+}
+
+.download-item:hover {
+  background: #f3f4f6;
+}
+
+.download-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.retry-button {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: white;
+  background: #eb7641;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background: #d66937;
+}
+
+.download-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #eb7641;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

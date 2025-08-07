@@ -1,0 +1,190 @@
+<!-- Loading State -->
+<div *ngIf="isLoading" class="flex items-center justify-center min-h-[400px]">
+  <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#eb7641]"></div>
+</div>
+
+<!-- Dashboard Content -->
+<div *ngIf="!isLoading">
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+    <!-- Active Campaigns -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Active Campaigns</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{activeCampaigns}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-advertisement-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span [ngClass]="{'text-green-500': statsGrowth.campaigns.trend === 'up', 'text-red-500': statsGrowth.campaigns.trend === 'down'}" class="flex items-center">
+          <i [class]="statsGrowth.campaigns.trend === 'up' ? 'ri-arrow-up-line' : 'ri-arrow-down-line'" class="mr-1"></i>
+          {{statsGrowth.campaigns.percentage}}%
+        </span>
+        <span class="text-gray-400 ml-2">vs {{statsGrowth.campaigns.monthName}}</span>
+      </div>
+    </div>
+
+    <!-- Total Locations -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Active Locations</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{activeLocations}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-map-pin-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span [ngClass]="{'text-green-500': statsGrowth.locations.trend === 'up', 'text-red-500': statsGrowth.locations.trend === 'down'}" class="flex items-center">
+          <i [class]="statsGrowth.locations.trend === 'up' ? 'ri-arrow-up-line' : 'ri-arrow-down-line'" class="mr-1"></i>
+          {{statsGrowth.locations.percentage}}%
+        </span>
+        <span class="text-gray-400 ml-2">vs {{statsGrowth.locations.monthName}}</span>
+      </div>
+    </div>
+
+    <!-- Ad Views -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Ad Views</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{totalViews}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-eye-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span [ngClass]="{'text-green-500': statsGrowth.views.trend === 'up', 'text-red-500': statsGrowth.views.trend === 'down'}" class="flex items-center">
+          <i [class]="statsGrowth.views.trend === 'up' ? 'ri-arrow-up-line' : 'ri-arrow-down-line'" class="mr-1"></i>
+          {{statsGrowth.views.percentage}}%
+        </span>
+        <span class="text-gray-400 ml-2">vs {{statsGrowth.views.monthName}}</span>
+      </div>
+    </div>
+
+    <!-- Subscription Status -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Current Plan</p>
+          <h3 class="text-xl font-bold text-gray-800 mt-1">{{currentPlan?.planName || 'No Active Plan'}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-vip-crown-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="w-full bg-gray-200 rounded-full h-2.5">
+          <div class="bg-[#eb7641] h-2.5 rounded-full" [style.width]="planUsagePercentage + '%'"></div>
+        </div>
+        <p class="text-sm text-gray-500 mt-2">{{daysRemaining}} days remaining</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <!-- Campaign Performance Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <h3 class="text-lg font-semibold mb-4">Campaign Performance</h3>
+      <div class="h-[300px]">
+        <canvas id="campaignChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Location Distribution Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <h3 class="text-lg font-semibold mb-4">Location Distribution</h3>
+      <div class="h-[300px]">
+        <canvas id="locationChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Campaigns -->
+  <div class="mt-8">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-lg font-semibold">Recent Campaigns</h3>
+      <button (click)="onViewAllCampaigns()" class="text-[#eb7641] hover:text-[#d66937] flex items-center">
+        View All <i class="ri-arrow-right-line ml-2"></i>
+      </button>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm">
+      <!-- Show table only if there are campaigns -->
+      <table class="min-w-full divide-y divide-gray-200" *ngIf="recentCampaigns.length > 0">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Locations</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Views</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let campaign of recentCampaigns">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="h-10 w-10 rounded-lg bg-[#eb764115] flex items-center justify-center">
+                  <i class="ri-video-line text-[#eb7641]"></i>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{campaign.name}}</div>
+                  <div class="text-sm text-gray-500">{{campaign.date}}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{campaign.locations}}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{campaign.views}}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span [ngClass]="{
+                'bg-green-100 text-green-800': campaign.status === 'active',
+                'bg-yellow-100 text-yellow-800': campaign.status === 'pending',
+                'bg-red-100 text-red-800': campaign.status === 'ended'
+              }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                {{campaign.status}}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex flex-col">
+                <div class="flex items-center text-sm">
+                  <i class="ri-time-line text-[#eb7641] mr-2"></i>
+                  <span class="text-gray-900">{{campaign.startDateTime | date:'MMM d, yyyy h:mm a'}}</span>
+                </div>
+                <div class="flex items-center text-sm mt-1">
+                  <i class="ri-time-line text-[#eb7641] mr-2"></i>
+                  <span class="text-gray-900">{{campaign.endDateTime | date:'MMM d, yyyy h:mm a'}}</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty state when no campaigns exist -->
+      <div *ngIf="recentCampaigns.length === 0" class="flex flex-col items-center justify-center py-16 px-4">
+        <div class="bg-[#eb764115] p-6 rounded-full mb-4">
+          <i class="ri-advertisement-line text-[#eb7641] text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No Campaigns Yet</h3>
+        <p class="text-gray-500 text-center mb-6 max-w-md">
+          Start creating your first advertising campaign and reach your target audience in specific locations.
+        </p>
+        <button (click)="onCreateCampaign()" class="bg-[#eb7641] text-white px-6 py-2 rounded-lg hover:bg-[#d66937] transition-colors duration-200 flex items-center">
+          <i class="ri-add-line mr-2"></i>
+          Create Campaign
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>

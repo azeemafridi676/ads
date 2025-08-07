@@ -1,0 +1,169 @@
+<!-- Loading State -->
+<div *ngIf="isLoading" class="flex items-center justify-center min-h-[400px]">
+  <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#eb7641]"></div>
+</div>
+
+<!-- Dashboard Content -->
+<div *ngIf="!isLoading">
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+    <!-- Total Users -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Users</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{totalUsers}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-user-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span [ngClass]="{'text-green-500': userGrowthRate >= 0, 'text-red-500': userGrowthRate < 0}" class="flex items-center">
+          <i [class]="userGrowthRate >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'" class="mr-1"></i>
+          {{userGrowthRate | number:'1.0-0'}}%
+        </span>
+        <span class="text-gray-400 ml-2">vs {{userGrowthMonth}}</span>
+      </div>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Revenue</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">${{totalRevenue | number:'1.0-0'}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-money-dollar-circle-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span [ngClass]="{'text-green-500': revenueGrowthRate >= 0, 'text-red-500': revenueGrowthRate < 0}" class="flex items-center">
+          <i [class]="revenueGrowthRate >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'" class="mr-1"></i>
+          {{revenueGrowthRate | number:'1.0-0'}}%
+        </span>
+        <span class="text-gray-400 ml-2">vs {{revenueGrowthMonth}}</span>
+      </div>
+    </div>
+
+    <!-- Total Views -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Views</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{totalViews | number:'1.0-0'}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-eye-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span class="text-gray-400">Campaign(s) Viewed</span>
+      </div>
+    </div>
+
+    <!-- Total Campaigns -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#eb7641] hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm">Total Campaigns</p>
+          <h3 class="text-2xl font-bold text-gray-800 mt-1">{{totalCampaigns}}</h3>
+        </div>
+        <div class="bg-[#eb764115] p-3 rounded-full">
+          <i class="ri-advertisement-line text-[#eb7641] text-xl"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center text-sm">
+        <span [ngClass]="{'text-green-500': campaignGrowthRate >= 0, 'text-red-500': campaignGrowthRate < 0}" class="flex items-center">
+          <i [class]="campaignGrowthRate >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'" class="mr-1"></i>
+          {{campaignGrowthRate | number:'1.0-0'}}%
+        </span>
+        <span class="text-gray-400 ml-2">vs {{campaignGrowthMonth}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <!-- Revenue Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Revenue Overview</h3>
+      </div>
+      <div class="h-[300px] relative">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+
+    <!-- User Growth Chart -->
+    <div class="bg-white p-6 rounded-xl shadow-sm">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">User Growth</h3>
+      </div>
+      <div class="h-[300px] relative">
+        <canvas id="userGrowthChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users List Section -->
+  <div class="mt-8">
+    <div class="bg-white rounded-xl shadow-sm">
+      <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Active Subscribers</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscription</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location Limit</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscription End</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let user of dashboardData?.users">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">{{user.name}}</div>
+                <div class="text-xs text-gray-500">Joined {{user.joinDate | date:'mediumDate'}}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{user.email}}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [ngClass]="{
+                        'bg-green-100 text-green-800': user.status === 'active',
+                        'bg-red-100 text-red-800': user.status === 'inactive',
+                        'bg-yellow-100 text-yellow-800': user.status === 'payment_failed'
+                      }">
+                  {{user.status | titlecase}}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-[#eb7641]">{{user.subscription}}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${{user.price}}</div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{user.locationLimit}} locations
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500">{{user.subscriptionEndDate | date:'mediumDate'}}</div>
+                <div class="text-xs text-gray-400">
+                  {{getDaysRemaining(user.subscriptionEndDate)}} days remaining
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+@keyframes highlightRow {
+  0% {
+    background-color: rgba(235, 116, 65, 0.3);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.highlight-animation {
+  animation: highlightRow 2s ease-out;
+}

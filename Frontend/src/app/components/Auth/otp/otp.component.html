@@ -1,0 +1,59 @@
+<div class="h-screen flex justify-center bg-white p-4 sm:p-8 md:p-16 lg:px-24">
+    <div class="max-w-12xl w-full bg-white overflow-hidden flex">
+        <div class="w-full lg:w-1/2 p-4 sm:p-6 md:p-8 lg:p-12 lg:px-24 flex flex-col justify-center">
+            <div class="space-y-4 sm:space-y-6">
+                <div>
+                    <app-goback></app-goback>
+                </div>
+                <div>
+                    <div onclick="window.location.href = '/'" class="mb-4 sm:mb-8">
+                        <img src="assets/images/logo/logo.png" alt="Show Your Adz Logo" class="h-12 sm:h-15" appImageNotFound>
+                    </div>
+                    <p class="mt-2 text-gray-600 text-sm sm:text-base">Please enter the verification code sent to your email.</p>
+                </div>
+
+                <form class="space-y-4 sm:space-y-6" [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+                    <div>
+                        <div class="relative">
+                            <input type="text" formControlName="otp"
+                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gray-200 focus:border-[#eb7641] focus:ring-2 focus:ring-orange-200 transition-all duration-200 bg-gray-50"
+                                placeholder="Enter verification code">
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Didn't receive the code? 
+                            <button type="button" (click)="resendOtp()" 
+                                class="text-[#eb7641] hover:text-orange-800 font-medium">
+                                Resend code
+                            </button>
+                        </p>
+                    </div>
+
+                    <button type="submit"
+                        class="px-6 sm:px-8 py-2 bg-[#eb7641] text-white font1 text-base sm:text-lg tracking-wider
+                        transition-all duration-300 shadow-lg hover:shadow-xl
+                        hover:bg-transparent hover:text-[#eb7641] hover:scale-105 
+                        border-2 border-[#eb7641] hover:border-[#eb7641] w-full"
+                        [disabled]="loading">
+                        <ng-container *ngIf="loading; else buttonText">
+                            <app-spinner></app-spinner>
+                        </ng-container>
+                        <ng-template #buttonText>
+                            Verify Code
+                        </ng-template>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Image section - hidden on mobile -->
+        <div class="hidden lg:flex w-1/2 relative items-center justify-center">
+            <img src="assets/images/forget_password.png"
+                 alt="ContactUs tailwind section" 
+                 class="w-full h-full object-contain"
+                 appImageNotFound>
+        </div>
+    </div>
+</div>

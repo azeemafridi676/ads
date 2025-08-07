@@ -1,0 +1,84 @@
+// Custom styles for users list component
+.table-responsive {
+  margin-bottom: 1rem;
+  
+  @media (max-width: 768px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+// Custom scrollbar for table
+.overflow-x-auto {
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #eb7641;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: darken(#eb7641, 10%);
+  }
+}
+
+// Smooth transitions
+.transition-all {
+  transition-duration: 300ms;
+}
+
+// Skeleton loader animation
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-pulse {
+  .bg-gray-200 {
+    background: linear-gradient(
+      90deg,
+      rgba(235, 118, 65, 0.06) 25%,
+      rgba(235, 118, 65, 0.12) 37%,
+      rgba(235, 118, 65, 0.06) 63%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+  }
+}
+
+:host {
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  tr {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .expanded-row {
+    background-color: rgba(235, 118, 65, 0.02);
+  }
+
+  td > div {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .break-words {
+    word-break: break-word;
+    transition: all 0.3s ease-in-out;
+  }
+} 

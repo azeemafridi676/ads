@@ -1,0 +1,116 @@
+<div class="min-h-screen bg-white p-16 px-24 flex justify-center items-center">
+  <!-- Replace all the control buttons with the new navbar component -->
+  <app-navbar
+    (minimize)="minimizeWindow()"
+    (close)="closeWindow()"
+  ></app-navbar>
+
+  <div class="max-w-12xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden flex">
+    <!-- Left Section -->
+    <div class="w-1/2 p-8 md:px-12 lg:p-12 lg:px-24">
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#eb7641] to-orange-600">Connection Instructions</h2>
+        
+        <!-- Important Network Notice -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="ri-error-warning-line text-yellow-400 text-xl"></i>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-yellow-700">
+                <span class="font-bold">IMPORTANT:</span> Both this app and your mobile device MUST be connected to the same network.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <ol class="list-none space-y-4">
+          <li class="flex items-center">
+            <span class="bg-[#eb7641] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">1</span>
+            <span class="text-gray-600">Install Traccar Client app on your mobile device</span>
+          </li>
+          <li class="flex items-center">
+            <span class="bg-[#eb7641] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">2</span>
+            <span class="text-gray-600">Open app and turn OFF the service status</span>
+          </li>
+          <li class="flex items-center">
+            <span class="bg-[#eb7641] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">3</span>
+            <span class="text-gray-600">Set Location Accuracy to HIGH in device settings</span>
+          </li>
+          <li class="flex items-center">
+            <span class="bg-[#eb7641] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">4</span>
+            <span class="text-gray-600">Tap "Server URL" and enter: <span class="font-mono bg-gray-100 px-2 py-1 rounded text-[#eb7641]">http://{{ serverIp }}:{{ serverPort }}</span></span>
+          </li>
+          <li class="flex items-center">
+            <span class="bg-[#eb7641] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">5</span>
+            <span class="text-gray-600">Set Frequency to 1 second and save settings</span>
+          </li>
+          <li class="flex items-center">
+            <span class="bg-[#eb7641] text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">6</span>
+            <span class="text-gray-600">Turn ON the service status to start tracking</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
+        <span class="block sm:inline">{{ errorMessage }}</span>
+      </div>
+    </div>
+
+    <!-- Right Section -->
+    <div class="w-1/2 bg-gradient-to-br from-orange-50 to-gray-50 p-8">
+      <div class="flex flex-col items-center">
+        <h2 class="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-[#eb7641] to-orange-600">Connection Status</h2>
+        
+        <!-- Connection Status Button -->
+        <div class="mb-8">
+          <div class="relative w-64 h-20 bg-[#eb7641] rounded-full shadow-lg overflow-hidden transition-all duration-500 ease-in-out transform hover:scale-105">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-white text-2xl font-bold">
+                {{ isConnected ? 'Connected' : 'Disconnected' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Latest Location Update -->
+        <div *ngIf="latestLocationUpdate" 
+             [ngClass]="{'newest-update': isNewUpdate}"
+             class="bg-white p-6 rounded-lg w-full shadow-lg transition-all duration-300 mb-6">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="font-semibold text-[#eb7641]">Timestamp:</div>
+            <div class="text-gray-600">{{ latestLocationUpdate.timestamp | date:'HH:mm:ss' }}</div>
+            <div class="font-semibold text-[#eb7641]">Latitude:</div>
+            <div class="text-gray-600">{{ latestLocationUpdate.latitude.toFixed(6) }}</div>
+            <div class="font-semibold text-[#eb7641]">Longitude:</div>
+            <div class="text-gray-600">{{ latestLocationUpdate.longitude.toFixed(6) }}</div>
+            <div class="font-semibold text-[#eb7641]">Speed:</div>
+            <div class="text-gray-600">{{ latestLocationUpdate.speed?.toFixed(2) || 'N/A' }} m/s</div>
+            <div class="font-semibold text-[#eb7641]">Bearing:</div>
+            <div class="text-gray-600">{{ latestLocationUpdate.bearing?.toFixed(2) || 'N/A' }}°</div>
+            <div class="font-semibold text-[#eb7641]">Accuracy:</div>
+            <div class="text-gray-600">{{ latestLocationUpdate.accuracy?.toFixed(2) || 'N/A' }} m</div>
+          </div>
+        </div>
+
+        <!-- Next Button -->
+        <button 
+          routerLink="/app/screen-selector" 
+          [disabled]="!isConnected"
+          [ngClass]="{'bg-[#eb7641] hover:bg-orange-700': isConnected, 'bg-gray-400 cursor-not-allowed': !isConnected}"
+          class="text-white font-bold py-3 px-6 rounded-full text-xl transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#eb7641] border-2 border-[#eb7641] hover:border-orange-700 w-48"
+        >
+          <ng-container *ngIf="!isConnected">
+            <app-spinner></app-spinner>
+          </ng-container>
+          <ng-container *ngIf="isConnected">
+            Next
+          </ng-container>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

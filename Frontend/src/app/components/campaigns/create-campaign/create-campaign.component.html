@@ -1,0 +1,520 @@
+  <div class="w-full min-h-screen flex-col flex lg:flex-row justify-between gap-12 my-5">
+    <div class="static-left flex-2">
+      <!-- Header -->
+      
+      <div >
+        <app-goback></app-goback>
+        <!-- Stepper Header -->
+        <div class="flex items-center justify-center mb-8" *ngIf="currentSubscription">
+          <div class="flex items-center">
+            <div [ngClass]="{'bg-[#eb7641] text-white': currentStep >= 1, 'bg-gray-200': currentStep < 1}" 
+                 class="rounded-full h-8 w-8 flex items-center justify-center">1</div>
+            <div class="text-sm ml-2">Campaign Details</div>
+          </div>
+          <div class="h-1 w-16 mx-4" [ngClass]="{'bg-[#eb7641]': currentStep >= 2, 'bg-gray-200': currentStep < 2}"></div>
+          <div class="flex items-center">
+            <div [ngClass]="{'bg-[#eb7641] text-white': currentStep >= 2, 'bg-gray-200': currentStep < 2}" 
+                 class="rounded-full h-8 w-8 flex items-center justify-center">2</div>
+            <div class="text-sm ml-2">Select Locations</div>
+          </div>
+          <div class="h-1 w-16 mx-4" [ngClass]="{'bg-[#eb7641]': currentStep >= 3, 'bg-gray-200': currentStep < 3}"></div>
+          <div class="flex items-center">
+            <div [ngClass]="{'bg-[#eb7641] text-white': currentStep >= 3, 'bg-gray-200': currentStep < 3}" 
+                 class="rounded-full h-8 w-8 flex items-center justify-center">3</div>
+            <div class="text-sm ml-2">Upload Media</div>
+          </div>
+        </div>
+
+        <!-- Step 1: Campaign Details -->
+        <form [formGroup]="campaignForm" *ngIf="currentStep === 1 && currentSubscription" 
+              class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641]">
+          <div class="grid gap-6 mb-6">
+            <!-- Campaign Name -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-gray-900">Campaign Name</label>
+              <input
+                type="text"
+                formControlName="campaignName"
+                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+                placeholder="Enter campaign name"
+              />
+              <div *ngIf="campaignForm.get('campaignName')?.touched && campaignForm.get('campaignName')?.invalid" 
+                   class="text-red text-sm mt-1">
+                <div *ngIf="campaignForm.get('campaignName')?.errors?.['required']">Campaign name is required</div>
+                <div *ngIf="campaignForm.get('campaignName')?.errors?.['minlength']">Minimum 5 characters required</div>
+              </div>
+            </div>
+
+            <!-- Date Range -->
+            <div class="space-y-6 mb-6">
+              <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 class="text-base font-medium text-gray-900 mb-3">Campaign Duration</h3>
+                <p class="text-sm text-gray-600 mb-4">Set the overall start and end dates for your campaign period.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Start Date -->
+                  <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-900">Campaign Start Date</label>
+                    <input
+                      type="date"
+                      [value]="getDateValue('startDateTime')"
+                      (change)="onDateChange($event, 'start')"
+                      class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+                    />
+                  </div>
+
+                  <!-- End Date -->
+                  <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-900">Campaign End Date</label>
+                    <input
+                      type="date"
+                      [value]="getDateValue('endDateTime')"
+                      (change)="onDateChange($event, 'end')"
+                      [disabled]="!campaignForm.get('startDateTime')?.value"
+                      [class.opacity-50]="!campaignForm.get('startDateTime')?.value"
+                      class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+                    />
+                    <div *ngIf="campaignForm.get('endDateTime')?.errors?.['endDateBeforeStartDate']" 
+                         class="text-red-500 text-sm mt-1">
+                      End date cannot be before start date
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h3 class="text-base font-medium text-gray-900 mb-3">Daily Display Schedule</h3>
+                <p class="text-sm text-gray-600 mb-4">Set the times when your ad will be shown each day during the campaign period.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Start Time -->
+                  <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-900">Daily Start Time</label>
+                    <div class="relative">
+                      <div class="flex items-center">
+                        <input
+                          type="time"
+                          [value]="getTimeValue('startDateTime')"
+                          (change)="onTimeChange($event, 'start')"
+                          class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+                        />
+                        <button 
+                          type="button"
+                          (click)="openTimeModal('start')"
+                          class="ml-2 p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
+                          <i class="ri-time-line text-gray-600"></i>
+                        </button>
+                      </div>
+                      <p class="mt-1 text-xs text-gray-500">Your ad will start showing at this time each day</p>
+                    </div>
+                  </div>
+
+                  <!-- End Time -->
+                  <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-900">Daily End Time</label>
+                    <div class="relative">
+                      <div class="flex items-center">
+                        <input
+                          type="time"
+                          [value]="getTimeValue('endDateTime')"
+                          (change)="onTimeChange($event, 'end')"
+                          class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+                        />
+                        <button 
+                          type="button"
+                          (click)="openTimeModal('end')"
+                          class="ml-2 p-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200">
+                          <i class="ri-time-line text-gray-600"></i>
+                        </button>
+                      </div>
+                      <p class="mt-1 text-xs text-gray-500">Your ad will stop showing at this time each day</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Time Picker Modal -->
+              <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" 
+                   *ngIf="showTimeModal">
+                <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-[400px] max-h-[90vh] overflow-y-auto">
+                  <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h3 class="text-lg font-medium text-gray-900">
+                      Select {{ timeModalType === 'start' ? 'Start' : 'End' }} Time
+                    </h3>
+                    <button type="button" 
+                            (click)="closeTimeModal()"
+                            class="text-gray-400 hover:text-gray-500">
+                      <i class="ri-close-line text-xl"></i>
+                    </button>
+                  </div>
+
+                  <div class="flex flex-col space-y-4">
+                    <!-- Quick Time Slots -->
+                    <div class="space-y-3">
+                      <h4 class="text-sm font-medium text-gray-700">Quick Select</h4>
+                      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        <button type="button"
+                                (click)="selectPresetTime('06:00', 'AM')"
+                                class="p-2 text-sm border rounded-lg hover:border-[#eb7641] hover:bg-orange-50 transition-colors duration-200 flex flex-col items-center justify-center"
+                                [class.bg-[#eb7641]]="isPresetTimeSelected('06:00', 'AM')"
+                                [class.text-white]="isPresetTimeSelected('06:00', 'AM')">
+                          <i class="ri-sun-line text-lg mb-1"></i>
+                          <span class="font-medium">Early Morning</span>
+                          <span class="text-xs mt-0.5">6:00 AM</span>
+                        </button>
+                        <button type="button"
+                                (click)="selectPresetTime('09:00', 'AM')"
+                                class="p-2 text-sm border rounded-lg hover:border-[#eb7641] hover:bg-orange-50 transition-colors duration-200 flex flex-col items-center justify-center"
+                                [class.bg-[#eb7641]]="isPresetTimeSelected('09:00', 'AM')"
+                                [class.text-white]="isPresetTimeSelected('09:00', 'AM')">
+                          <i class="ri-sun-foggy-line text-lg mb-1"></i>
+                          <span class="font-medium">Morning</span>
+                          <span class="text-xs mt-0.5">9:00 AM</span>
+                        </button>
+                        <button type="button"
+                                (click)="selectPresetTime('12:00', 'PM')"
+                                class="p-2 text-sm border rounded-lg hover:border-[#eb7641] hover:bg-orange-50 transition-colors duration-200 flex flex-col items-center justify-center"
+                                [class.bg-[#eb7641]]="isPresetTimeSelected('12:00', 'PM')"
+                                [class.text-white]="isPresetTimeSelected('12:00', 'PM')">
+                          <i class="ri-sun-line text-lg mb-1"></i>
+                          <span class="font-medium">Noon</span>
+                          <span class="text-xs mt-0.5">12:00 PM</span>
+                        </button>
+                        <button type="button"
+                                (click)="selectPresetTime('03:00', 'PM')"
+                                class="p-2 text-sm border rounded-lg hover:border-[#eb7641] hover:bg-orange-50 transition-colors duration-200 flex flex-col items-center justify-center"
+                                [class.bg-[#eb7641]]="isPresetTimeSelected('03:00', 'PM')"
+                                [class.text-white]="isPresetTimeSelected('03:00', 'PM')">
+                          <i class="ri-sun-foggy-line text-lg mb-1"></i>
+                          <span class="font-medium">Afternoon</span>
+                          <span class="text-xs mt-0.5">3:00 PM</span>
+                        </button>
+                        <button type="button"
+                                (click)="selectPresetTime('06:00', 'PM')"
+                                class="p-2 text-sm border rounded-lg hover:border-[#eb7641] hover:bg-orange-50 transition-colors duration-200 flex flex-col items-center justify-center"
+                                [class.bg-[#eb7641]]="isPresetTimeSelected('06:00', 'PM')"
+                                [class.text-white]="isPresetTimeSelected('06:00', 'PM')">
+                          <i class="ri-moon-foggy-line text-lg mb-1"></i>
+                          <span class="font-medium">Evening</span>
+                          <span class="text-xs mt-0.5">6:00 PM</span>
+                        </button>
+                        <button type="button"
+                                (click)="selectPresetTime('09:00', 'PM')"
+                                class="p-2 text-sm border rounded-lg hover:border-[#eb7641] hover:bg-orange-50 transition-colors duration-200 flex flex-col items-center justify-center"
+                                [class.bg-[#eb7641]]="isPresetTimeSelected('09:00', 'PM')"
+                                [class.text-white]="isPresetTimeSelected('09:00', 'PM')">
+                          <i class="ri-moon-line text-lg mb-1"></i>
+                          <span class="font-medium">Night</span>
+                          <span class="text-xs mt-0.5">9:00 PM</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="border-t pt-4">
+                      <h4 class="text-sm font-medium text-gray-700 mb-3">Custom Time</h4>
+                      <div class="flex justify-center items-end space-x-4">
+                        <!-- Hours -->
+                        <div class="flex flex-col items-center">
+                          <label class="text-xs font-medium text-gray-600 mb-1">Hour</label>
+                          <div class="relative inline-block">
+                            <button type="button" 
+                                    (click)="adjustHour(1)"
+                                    class="absolute -top-2 left-0 right-0 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-t-md">
+                              <i class="ri-arrow-up-s-line text-xl"></i>
+                            </button>
+                            <input type="text" 
+                                   [(ngModel)]="selectedHour"
+                                   (ngModelChange)="onHourChange($event)"
+                                   class="w-16 h-12 text-center border rounded-lg text-lg font-medium focus:border-[#eb7641] focus:ring-1 focus:ring-[#eb7641] px-2"
+                                   [value]="selectedHour.toString().padStart(2, '0')">
+                            <button type="button"
+                                    (click)="adjustHour(-1)" 
+                                    class="absolute -bottom-2 left-0 right-0 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-b-md">
+                              <i class="ri-arrow-down-s-line text-xl"></i>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="text-xl font-medium text-gray-600 mb-4">:</div>
+
+                        <!-- Minutes -->
+                        <div class="flex flex-col items-center">
+                          <label class="text-xs font-medium text-gray-600 mb-1">Minute</label>
+                          <div class="relative inline-block">
+                            <button type="button"
+                                    (click)="adjustMinute(5)"
+                                    class="absolute -top-2 left-0 right-0 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-t-md">
+                              <i class="ri-arrow-up-s-line text-xl"></i>
+                            </button>
+                            <input type="text"
+                                   [(ngModel)]="selectedMinute"
+                                   (ngModelChange)="onMinuteChange($event)"
+                                   class="w-16 h-12 text-center border rounded-lg text-lg font-medium focus:border-[#eb7641] focus:ring-1 focus:ring-[#eb7641] px-2"
+                                   [value]="selectedMinute.toString().padStart(2, '0')">
+                            <button type="button"
+                                    (click)="adjustMinute(-5)"
+                                    class="absolute -bottom-2 left-0 right-0 h-6 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-b-md">
+                              <i class="ri-arrow-down-s-line text-xl"></i>
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- AM/PM -->
+                        <div class="flex flex-col items-center ml-2">
+                          <label class="text-xs font-medium text-gray-600 mb-1">Period</label>
+                          <div class="flex flex-col space-y-1">
+                            <button type="button"
+                                    [class.bg-[#eb7641]]="selectedPeriod === 'AM'"
+                                    [class.text-white]="selectedPeriod === 'AM'"
+                                    (click)="selectedPeriod = 'AM'"
+                                    class="w-16 h-[30px] border rounded-lg text-center hover:border-[#eb7641] transition-colors duration-200 text-sm font-medium">
+                              AM
+                            </button>
+                            <button type="button"
+                                    [class.bg-[#eb7641]]="selectedPeriod === 'PM'"
+                                    [class.text-white]="selectedPeriod === 'PM'"
+                                    (click)="selectedPeriod = 'PM'"
+                                    class="w-16 h-[30px] border rounded-lg text-center hover:border-[#eb7641] transition-colors duration-200 text-sm font-medium">
+                              PM
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="text-center py-4 border-t mt-8">
+                      <p class="text-sm text-gray-600 mb-1">Selected Time</p>
+                      <p class="text-2xl font-bold text-gray-900">
+                        {{selectedHour.toString().padStart(2, '0')}}:{{selectedMinute.toString().padStart(2, '0')}} {{selectedPeriod}}
+                      </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t">
+                      <button type="button"
+                              (click)="closeTimeModal()"
+                              class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                        Cancel
+                      </button>
+                      <button type="button"
+                              (click)="confirmTimeSelection()"
+                              class="px-4 py-2 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937]">
+                        Confirm
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Button -->
+          <div class="flex justify-end mt-6">
+            <button 
+              type="button"
+              [disabled]="!campaignForm.get('campaignName')?.valid || !campaignForm.get('startDateTime')?.valid || !campaignForm.get('endDateTime')?.valid"
+              (click)="nextStep()"
+              class="px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              Next
+              <i class="ri-arrow-right-line"></i>
+            </button>
+          </div>
+        </form>
+
+        <!-- Step 2: Location Selection -->
+        <div *ngIf="currentStep === 2" 
+             class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641]">
+          <div class="mb-6">
+            <h5 class="text-lg font-semibold mb-2">Select Locations</h5>
+            <p class="text-sm text-gray-600">
+              Choose locations where you want to display your campaign. 
+              (Limit: {{currentSubscription?.locationLimit}} locations)
+            </p>
+          </div>
+
+          <!-- Locations Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div *ngFor="let location of locations"
+                 (click)="toggleLocationSelection(location)"
+                 [class.border-[#eb7641]]="isLocationSelected(location)"
+                 class="bg-white p-4 rounded-lg border-2 cursor-pointer hover:shadow-md transition-all duration-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                  <div class="bg-[#eb764115] p-2 rounded-full mr-3">
+                    <i class="ri-map-pin-line text-[#eb7641]"></i>
+                  </div>
+                  <h6 class="font-medium">{{location.locationName}}</h6>
+                </div>
+                <div class="w-4 h-4 rounded-full border-2"
+                     [class.bg-[#eb7641]]="isLocationSelected(location)">
+                </div>
+              </div>
+              <div class="text-sm text-gray-600">
+                <p>{{location.state}}</p>
+                <p>Radius: {{location.radius}}m</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional: Debug information -->
+          <div class="text-sm text-gray-500 mt-2" *ngIf="isEditMode">
+            Selected Locations: {{selectedLocations.length}}
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex justify-between mt-6">
+            <button 
+              type="button"
+              (click)="previousStep()"
+              class="px-6 py-3 border border-[#eb7641] text-[#eb7641] rounded-lg hover:bg-[#eb7641] hover:text-white transition-colors duration-300 flex items-center gap-2">
+              <i class="ri-arrow-left-line"></i>
+              Back
+            </button>
+            <button 
+              type="button"
+              [disabled]="selectedLocations.length === 0"
+              (click)="nextStep()"
+              class="px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              Next
+              <i class="ri-arrow-right-line"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Media Upload -->
+        <div *ngIf="currentStep === 3" 
+             class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641]">
+          <div class="mb-6">
+            <h5 class="text-lg font-semibold mb-2">Upload Media</h5>
+            <p class="text-sm text-gray-600">
+              Upload your campaign media. Supported formats: MP4, JPG, PNG
+              <br>
+              Video limit: {{currentSubscription?.adVedioTimeLimit}} minutes
+            </p>
+          </div>
+
+          <!-- Media Upload Section -->
+          <div class="space-y-4">
+            <!-- File Upload -->
+            <div class="w-full">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Upload Media</label>
+              <input 
+                #mediaInput
+                type="file" 
+                accept="image/*,video/*"
+                (change)="handleMediaUpload($event)"
+                class="hidden">
+              
+              <div class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                   (click)="mediaInput.click()">
+                <div *ngIf="!mediaPreview && !isUploading" class="flex flex-col items-center justify-center pt-5 pb-6">
+                  <i class="ri-upload-cloud-2-line text-4xl text-gray-500 mb-2"></i>
+                  <p class="mb-2 text-sm text-gray-500">
+                    <span class="font-semibold">Click to upload</span> or drag and drop
+                  </p>
+                  <p class="text-xs text-gray-500">Image or Video files</p>
+                </div>
+
+                <!-- Upload Progress -->
+                <div *ngIf="isUploading" class="flex flex-col items-center justify-center w-full h-full">
+                  <div class="w-64 bg-gray-200 rounded-full h-2.5 mb-4">
+                    <div class="bg-[#eb7641] h-2.5 rounded-full" [style.width.%]="uploadProgress"></div>
+                  </div>
+                  <p class="text-sm text-gray-600">Uploading... {{uploadProgress.toFixed(0)}}%</p>
+                </div>
+                
+                <!-- Media Preview -->
+                <div *ngIf="mediaPreview && !isUploading" class="relative w-full h-full">
+                  <img *ngIf="mediaType === 'image'" [src]="mediaPreview" class="w-full h-full object-contain" appImageNotFound>
+                  <video *ngIf="mediaType === 'video'" [src]="mediaPreview" controls class="w-full h-full object-contain"></video>
+                  
+                  <!-- Reset Button -->
+                  <button 
+                    (click)="resetMedia(); $event.stopPropagation()"
+                    class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600">
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+
+                <!-- Error Message -->
+                <div *ngIf="uploadError" class="text-red-500 text-sm mt-2">
+                  {{uploadError}}
+                </div>
+              </div>
+            </div>
+
+            <!-- Duration Input for Images -->
+            <div *ngIf="mediaType === 'image'" class="w-full">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Display Duration (seconds)
+              </label>
+              <input 
+                type="number" 
+                [value]="mediaDuration"
+                (input)="onDurationChange($event)"
+                min="1"
+                [max]="currentSubscription?.adVedioTimeLimit * 60"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#eb7641] focus:ring-[#eb7641] sm:text-sm"
+                placeholder="Enter duration in seconds">
+              <p class="mt-1 text-sm text-gray-500">
+                Maximum allowed duration: {{currentSubscription?.adVedioTimeLimit * 60}} seconds
+              </p>
+            </div>
+
+            <!-- Video Duration Display -->
+            <div *ngIf="mediaType === 'video'" class="w-full">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Video Duration
+              </label>
+              <p class="text-sm text-gray-600">
+                {{mediaDuration}} seconds
+              </p>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex justify-between mt-6">
+            <button 
+              type="button"
+              (click)="previousStep()"
+              class="px-6 py-3 border border-[#eb7641] text-[#eb7641] rounded-lg hover:bg-[#eb7641] hover:text-white transition-colors duration-300 flex items-center gap-2">
+              <i class="ri-arrow-left-line"></i>
+              Back
+            </button>
+            <button 
+              type="button"
+              [disabled]="!mediaPreview || loading || !isVideoDurationValid()"
+              (click)="onSubmit()"
+              class="px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              <ng-container *ngIf="!loading">
+                {{ isEditMode ? 'Update Campaign' : 'Create Campaign' }}
+                <i class="ri-check-line"></i>
+              </ng-container>
+              <app-spinner *ngIf="loading" class="w-6 h-6"></app-spinner>
+            </button>
+          </div>
+        </div>
+
+        <!-- No Subscription Message -->
+        <div *ngIf="!currentSubscription" 
+             class="bg-white rounded-xl shadow-sm p-8 text-center mt-8">
+          <div class="max-w-md mx-auto">
+            <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+              <i class="ri-vip-crown-line text-[#eb7641] text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Subscription Required</h3>
+            <p class="text-gray-600 mb-6">
+              To create campaigns and reach your target audience, you'll need an active subscription.
+            </p>
+            <button 
+              routerLink="/dashboard/subscriptions"
+              class="px-6 py-3 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center gap-2 mx-auto">
+              <i class="ri-shield-star-line"></i>
+              View Subscription Plans
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

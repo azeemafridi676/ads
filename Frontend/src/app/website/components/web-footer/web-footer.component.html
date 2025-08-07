@@ -1,0 +1,95 @@
+
+<!-- Footer Section -->
+<footer class="bg-[#3c3c47] text-white">
+  <div class="max-w-[1400px] mx-auto px-4 pt-8 sm:pt-12 md:pt-16 md:px-10">
+    <!-- Top Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start mb-8 md:mb-12">
+      <!-- Logo and Copyright -->
+      <div class="w-full md:w-auto mb-8 md:mb-0">
+        <div class="flex items-center gap-3 sm:gap-5">
+          <img src="assets/images/footer-logo.webp" alt="Haul Adz Logo" class="w-16 sm:w-20" appImageNotFound>
+          <div class="flex flex-col justify-end">
+            <h3 class="text-2xl sm:text-3xl font-light">Haul Adz</h3>
+            <p class="text-base sm:text-xl opacity-80 font-light">Haul Adz © 2024. All Rights Reserved</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="w-full md:w-auto grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-8">
+        <!-- Column 1 -->
+        <div>
+          <ul class="space-y-2">
+            <li><a routerLink="/" [routerLinkActive]="['active']"  [routerLinkActiveOptions]="{exact: true}"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors  font-[300]">Home</a></li>
+            <li><a routerLink="/pricing" [routerLinkActive]="['active']"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Pricing</a>
+            </li>
+            <li><a routerLink="/contact" [routerLinkActive]="['active']"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Contact</a>
+            </li>
+            <li><a routerLink="/login" [routerLinkActive]="['active']"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Log In</a>
+            </li>
+          </ul>
+        </div>
+        <!-- Column 2 -->
+        <div>
+          <ul class="space-y-2">
+            <li><a href="#"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Terms &
+                Conditions</a></li>
+            <li><a href="#"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Privacy
+                Policy</a></li>
+            <li><a href="#"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Refund
+                Policy</a></li>
+            <li><a href="#"
+                class="text-sm sm:text-base hover:text-[#eb7641] transition-colors text-light font-[300]">Accessibility
+                Statement</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Section -->
+    <div class="text-center md:text-left mb-8">
+      <a href="mailto:WILL@SHOWYOURADZ.COM"
+        class="text-xl sm:text-2xl xl:text-[85px] font-[400] text-white hover:text-[#eb7641] transition-colors inline-flex items-center gap-2 sm:gap-4 leading-normal xl:leading-[119px] break-all md:break-normal">
+        WILL&#64;SHOWYOURADZ.COM
+        <!--  WILL&#64;SHOWYOURADZ.COM -->
+        <svg class="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 transform rotate-45" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Social Links -->
+  <div class="bg-[#eb7641] py-4">
+    <div class="flex justify-center md:justify-end space-x-4 sm:space-x-6 max-w-[1400px] mx-auto px-4 md:px-10">
+      <a href="https://web.facebook.com/HaulAdz"
+        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-[#3c3c47] transition-all duration-300 flex items-center justify-center group">
+        <i class="ri-facebook-fill text-lg sm:text-xl text-white group-hover:text-white"></i>
+      </a>
+      <a href="https://www.instagram.com/hauladz"
+        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-[#3c3c47] transition-all duration-300 flex items-center justify-center group">
+        <i class="ri-instagram-line text-lg sm:text-xl text-white group-hover:text-white"></i>
+      </a>
+      <a href="https://linktr.ee/hauladz"
+        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 hover:bg-[#3c3c47] transition-all duration-300 flex items-center justify-center group">
+        <i class="ri-linkedin-fill text-lg sm:text-xl text-white group-hover:text-white"></i>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<!-- Scroll to Top Button -->
+<button id="scrollToTop"
+  class="fixed bottom-24 right-10 w-12 h-12 bg-[#eb7641] text-white rounded-full shadow-lg hover:bg-[#3c3c47] transition-all duration-300 flex items-center justify-center opacity-0 invisible">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+  </svg>
+</button>

@@ -1,0 +1,198 @@
+<div
+    class="w-full min-h-screen flex-col flex lg:flex-row justify-between gap-12 "
+  >
+  
+    <div class="static-left  flex-2">
+      
+      <div >
+      
+        <app-goback></app-goback>
+        <!-- Stepper Header -->
+        <div class="flex items-center justify-center mb-8">
+          <div class="flex items-center">
+            <div [ngClass]="{'bg-[#eb7641] text-white': currentStep >= 1, 'bg-gray-200': currentStep < 1}" 
+                 class="rounded-full h-8 w-8 flex items-center justify-center">1</div>
+            <div class="text-sm ml-2">Location Details</div>
+          </div>
+          <div class="h-1 w-16 mx-4" [ngClass]="{'bg-[#eb7641]': currentStep >= 2, 'bg-gray-200': currentStep < 2}"></div>
+          <div class="flex items-center">
+            <div [ngClass]="{'bg-[#eb7641] text-white': currentStep >= 2, 'bg-gray-200': currentStep < 2}" 
+                 class="rounded-full h-8 w-8 flex items-center justify-center">2</div>
+            <div class="text-sm ml-2">Map Location</div>
+          </div>
+        </div>
+
+        <!-- Step 1: Location Details -->
+        <form [formGroup]="addLocationForm" *ngIf="currentStep === 1" class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641]">
+          <div class="grid gap-6 mb-6 md:grid-cols-2">
+            <!-- Location Name -->
+            <div>
+              <label for="locationName" class="block mb-2 text-sm font-medium text-gray-900">
+                Location Name
+              </label>
+              <input
+                type="text"
+                id="locationName"
+                formControlName="locationName"
+                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+                placeholder="Enter location name"
+              />
+              <div *ngIf="addLocationForm.get('locationName')?.touched && addLocationForm.get('locationName')?.invalid" 
+                   class="text-red text-sm mt-1">
+                <div *ngIf="addLocationForm.get('locationName')?.errors?.['required']">Location name is required</div>
+                <div *ngIf="addLocationForm.get('locationName')?.errors?.['minlength']">Minimum 5 characters required</div>
+              </div>
+            </div>
+
+            <!-- Country (Fixed to US) -->
+            <div>
+              <label for="country" class="block mb-2 text-sm font-medium text-gray-900">
+                Country
+              </label>
+              <select
+                id="country"
+                formControlName="country"
+                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+              >
+                <option value="US">United States</option>
+              </select>
+            </div>
+
+            <!-- State Selection -->
+            <div>
+              <label for="state" class="block mb-2 text-sm font-medium text-gray-900">
+                State
+              </label>
+              <select
+                id="state"
+                formControlName="state"
+                (change)="onStateChange($event)"
+                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#eb7641] focus:border-[#eb7641] block w-full p-2.5"
+              >
+                <option value="">Select a state</option>
+                <option *ngFor="let state of states" [value]="state.code">
+                  {{state.name}}
+                </option>
+              </select>
+              <div *ngIf="addLocationForm.get('state')?.touched && addLocationForm.get('state')?.invalid" 
+                   class="text-red text-sm mt-1">
+                <div *ngIf="addLocationForm.get('state')?.errors?.['required']">Please select a state</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Button -->
+          <div class="flex justify-end mt-6">
+            <button type="button"
+                    [disabled]="!addLocationForm.valid"
+                    (click)="nextStep()"
+                    class="px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              Next
+              <i class="ri-arrow-right-line"></i>
+            </button>
+          </div>
+        </form>
+
+        <!-- Step 2: Map -->
+        <div *ngIf="currentStep === 2" class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641]">
+          <div class="mb-4">
+            <h5 class="text-lg font-semibold mb-2">Set Location Area</h5>
+            <p class="text-sm text-gray-600">Click on the map to place a marker and adjust the radius by dragging the circle's edge.</p>
+          </div>
+
+          <!-- Map Container -->
+          <div class="h-[400px] w-full rounded-lg mb-4">
+            <google-map
+              height="100%"
+              width="100%"
+              [options]="mapOptions"
+              [center]="center"
+              (mapClick)="onMapClick($event)"
+            
+              >
+              
+              <map-marker
+                *ngIf="markerPosition"
+                [position]="markerPosition"
+                [options]="{ draggable: true }"
+                (mapDragend)="onMarkerDrag($event)">
+              </map-marker>
+
+              <map-circle
+                *ngIf="markerPosition"
+                [center]="markerPosition"
+                [options]="circleOptions"
+                
+                >
+              </map-circle>
+
+            </google-map>
+          </div>
+
+          <!-- Radius Control -->
+          <div *ngIf="selectedLocation" class="bg-gray-50 p-4 rounded-lg mb-4">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Radius Control (meters)
+              </label>
+              <div class="flex items-center gap-4">
+                <input
+                  type="range"
+                  [min]="minRadius"
+                  [max]="maxRadius"
+                  [value]="radiusValue"
+                  (input)="onRadiusInput($event)"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#eb7641]"
+                />
+                <input
+                  type="text"
+                  [value]="radiusValue"
+                  (input)="onRadiusInput($event)"
+                  class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+            </div>
+
+            <!-- Location Details -->
+            <div class="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <span class="font-medium">Latitude:</span>
+                <span class="ml-2">{{selectedLocation.lat | number:'1.6-6'}}</span>
+              </div>
+              <div>
+                <span class="font-medium">Longitude:</span>
+                <span class="ml-2">{{selectedLocation.lng | number:'1.6-6'}}</span>
+              </div>
+              <div>
+                <span class="font-medium">Radius:</span>
+                <span class="ml-2">{{selectedLocation.radius | number:'1.0-0'}} meters</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="flex justify-between items-center mt-4">
+            <button 
+              type="button" 
+              (click)="previousStep()"
+              class="px-6 py-3 border border-[#eb7641] text-[#eb7641] rounded-lg hover:bg-[#eb7641] hover:text-white transition-colors duration-300 flex items-center justify-center gap-2">
+              <i class="ri-arrow-left-line"></i>
+              Back
+            </button>
+            <button 
+              type="button" 
+              (click)="handleSubmitClick()"
+              [disabled]="!selectedLocation || loading"
+              class="px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              <ng-container *ngIf="!loading">
+                Submit
+                <i class="ri-check-line"></i>
+              </ng-container>
+              <app-spinner *ngIf="loading" class="w-6 h-6"></app-spinner>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+   
+  </div>

@@ -1,0 +1,169 @@
+name: Node.js Deployment with Email Notifications
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Deploy to Server
+        env:
+          SERVER_USER: 'ubuntu'
+          SERVER_HOST: '18.118.168.162'
+          APP_DIR: '/var/www/html/adz-frontend'
+        run: |
+          echo "🚀 Starting deployment at $(date)"
+          mkdir -p ~/.ssh
+          echo "-----BEGIN RSA PRIVATE KEY-----
+          MIIEowIBAAKCAQEAq/ypnsFpnRHeUYlrqlgT+XQZwn0O1Vl7CiD2BnpkviDXLs+Q
+          hPsfAYYSYO95YSdt931Lvma5HpUINEmco/mp+sClhlt0/vf8ZSHnRGckBo7x4THr
+          jm1NDEH8Gce5fWSowgCSBozzupcgsKfIyxVH2k3/EV2d87/BIWjpeAufwMUfdzXy
+          uNAFtO3TxN1J7j57prLIs+V7S+cjLuXWzXLas1akyIByWxZOcRFFBwiGlfWFLv+9
+          YFmKWCt1GBnigsgxMpO0fHap3o5NG4wzHiEmJTb4oY/FeW5NaKqop7WW3FtAQC5g
+          /eDxISvJ5j8HPAgSG/912OVx0jAJqvOYv3+jXwIDAQABAoIBAD0Ud30NPZ/t16Hn
+          hxgxPa7LH9blqR32MG9Rc26rixnG+gUC7FV+Be35mo9YnSf24+QQWJUfUEFfNlGz
+          jvDhWw/V2TNVScC/e6DDIKo3YyD9JUQQAZNMmB9xU8IoH2U8GX8EyteOuYSb5Z03
+          iWUugp0yNBMLx2vovwNJihj7L9o60rQktdyh/pAACU2jbK21HnG2RgPpvf+xBzRI
+          gHWfWEdXC/bzitLrjwC7DzucT2imPHJpaZiQoeH/QmVRBciVLaYMoUMQ3hMZMxGS
+          WWFIMFrRP+j7QvU1lk7P303p/IKs09k62Xgu3G0IhvhSxvIMNHuvt6Ehy0dnjHl8
+          Exl1dWkCgYEA1rux2FzFvgLt/dackmxC3vHCSiMeVK42Pen8PSR68p4ItOZPIhMw
+          FhnKT/IeH+YojwoRWkipN8/enfG8Cw9JWfRrfwH2/AE0iuvYPwiDCQn3di5dg5/u
+          5NmTvti5JhNZj6WrZrqB9uLkcMpZKAoZke7meesGXWT2j4+RZyOMXZsCgYEAzQn3
+          gO6GgsJ1SjQyrcAQImwvRK0Xgo0dhanA/rpQ2yFEh5SteNFcEw0nnF403Rcxxs8K
+          yUXWdjS9YIrIO61+RCx07Ei0hwcfHEUioAuziylgA69QhuVLJZfU6FCmNE5Jsa5K
+          gFyZUfMq5NGocJ0gIgxtt2KyhMR7G+D5JcpcD40CgYBSZQTxy29I4KDnZMEBYi8q
+          ksOFZQJPZeWETlMuNuBCVidrGnBE1+38nPrHQFUU0mC/uhI8fWMI+mcmXcpUyBHS
+          RXo16tAVlHTP1X1NenulLUDaBSJ2zhiBkYcilNA+bvBPsTcanPgffqI/MTWSqoVz
+          PKMNJwRzM7l0DpexZq+GfwKBgGQIps4qkUmeYebwDIGkoLqKmY0h/cRd4LdjmJsu
+          f2BJnMuhB/lX+1n4IwkxFQ2A0XIzdQm5nuZQ2MwPKZ2kCWRtZCYbWqg+GzmJqVj4
+          HIKajxN9JwaJO959cwxcvJnsUBv18rcpdkv7HURB3bIDlrfF5ImCB6Kq0X1Kh4Oe
+          dMfJAoGBANI7UfwiyRDRtP64CVIwz7wFcgxqwxHsVk4ebX9F0SW0qe2Tu6VOQhwm
+          qgB62i60LkFH7hVnGLZYdFXcOdj+KT3i4NWMXceO75DPHL2xVU4gnjmt2kxOSOvz
+          zkgkxkdSDfdWrkPw+lUJ/cE4QroFSys+8OoGZR7uJkaANDcMSAf+
+          -----END RSA PRIVATE KEY-----" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<EOF
+            set -e  # Exit on any error
+            
+            echo "📂 Changing to app directory..."
+            cd $APP_DIR || exit 1
+            
+            echo "🔄 Checking out master branch..."
+            sudo git checkout master || exit 1
+            
+            # Store the current package.json hash
+            echo "📦 Checking package.json status..."
+            OLD_HASH=\$(md5sum package.json 2>/dev/null || echo "none")
+            
+            echo "⬇️ Pulling latest changes..."
+            sudo git pull origin master || exit 1
+            
+            # Check if package.json has changed
+            NEW_HASH=\$(md5sum package.json)
+            if [ "\$OLD_HASH" != "\$NEW_HASH" ]; then
+              echo "📦 Package.json changed, running npm install..."
+              sudo npm install || exit 1
+            else
+              echo "📦 No changes in package.json, skipping npm install"
+            fi
+            
+            echo "🏗️ Building application..."
+            sudo npm run build || exit 1
+            
+            echo "✅ Deployment completed successfully!"
+          EOF
+
+      - name: Send Success Email
+        if: success()
+        run: |
+          echo "📧 Preparing success email..."
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
+          COMMIT_HASH=$(git log -1 --pretty=format:"%h")
+          COMMIT_DATE=$(git log -1 --pretty=format:"%cd" --date=format:"%Y-%m-%d %H:%M:%S")
+          DEPLOY_DATE=$(date "+%Y-%m-%d %H:%M:%S")
+          
+          curl --fail --ssl-reqd \
+            --url 'smtps://smtp.gmail.com:465' \
+            --user 'azeemafridi676@gmail.com:qcxj zgpz iidl wngz' \
+            --mail-from 'azeemafridi676@gmail.com' \
+            --mail-rcpt 'azeemafridi676@gmail.com' \
+            --mail-rcpt 'Hassanmansoor006@gmail.com' \
+            --upload-file - <<EOF
+          Content-Type: text/plain; charset=utf-8
+          MIME-Version: 1.0
+          From: azeemafridi676@gmail.com
+          To: azeemafridi676@gmail.com, Hassanmansoor006@gmail.com
+          Subject: ✅ Adz-Frontend Deployment Successful
+          
+          Deployment to server was successful!
+          
+          Repository: Hassanmansoor006/adz-frontend
+          Branch: master
+          Deployment Time: $DEPLOY_DATE
+          
+          Commit Details:
+          - Message: $COMMIT_MSG
+          - Author: $COMMIT_AUTHOR
+          - Hash: $COMMIT_HASH
+          - Date: $COMMIT_DATE
+          
+          Server: 18.118.168.162
+          Environment: Production
+          EOF
+
+      - name: Send Failure Email
+        if: failure()
+        run: |
+          echo "📧 Preparing failure notification..."
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an")
+          COMMIT_HASH=$(git log -1 --pretty=format:"%h")
+          COMMIT_DATE=$(git log -1 --pretty=format:"%cd" --date=format:"%Y-%m-%d %H:%M:%S")
+          DEPLOY_DATE=$(date "+%Y-%m-%d %H:%M:%S")
+          
+          curl --fail --ssl-reqd \
+            --url 'smtps://smtp.gmail.com:465' \
+            --user 'azeemafridi676@gmail.com:qcxj zgpz iidl wngz' \
+            --mail-from 'azeemafridi676@gmail.com' \
+            --mail-rcpt 'azeemafridi676@gmail.com' \
+            --mail-rcpt 'Hassanmansoor006@gmail.com' \
+            --upload-file - <<EOF
+          Content-Type: text/plain; charset=utf-8
+          MIME-Version: 1.0
+          From: azeemafridi676@gmail.com
+          To: azeemafridi676@gmail.com, Hassanmansoor006@gmail.com
+          Subject: ❌ Adz-Frontend Deployment Failed
+          
+          Deployment to server failed!
+          
+          Repository: Hassanmansoor006/adz-frontend
+          Branch: master
+          Failure Time: $DEPLOY_DATE
+          
+          Last Commit Details:
+          - Message: $COMMIT_MSG
+          - Author: $COMMIT_AUTHOR
+          - Hash: $COMMIT_HASH
+          - Date: $COMMIT_DATE
+          
+          Server: 18.118.168.162
+          Environment: Production
+          
+          Please check the GitHub Actions logs for more details.
+          EOF

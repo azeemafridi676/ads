@@ -1,0 +1,116 @@
+    <!-- Loading Spinner -->
+    <app-spinner *ngIf="loading"></app-spinner>
+
+    <!-- Locations Table -->
+    <div *ngIf="!loading && locations.length > 0" class="mt-8">
+      <div class="flex justify-end mb-4">
+        <button 
+          routerLink="/dashboard/addlocation"
+          class="px-4 py-2 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center gap-2">
+          <i class="ri-add-line"></i>
+          Add Location
+        </button>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Location Name
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  State
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Coordinates
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Radius
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr *ngFor="let location of locations" class="hover:bg-gray-50 transition-colors duration-200">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="bg-[#eb764115] p-2 rounded-full mr-3">
+                      <i class="ri-map-pin-line text-[#eb7641]"></i>
+                    </div>
+                    <div class="text-sm font-medium text-gray-900">
+                      {{location.locationName}}
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-600">{{location.state}}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-600">
+                    <div>Lat: {{location.latitude | number:'1.6-6'}}</div>
+                    <div>Long: {{location.longitude | number:'1.6-6'}}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-[#eb764115] text-[#eb7641]">
+                    {{location.radius}}m
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex items-center gap-3">
+                    <button 
+                      (click)="onEditLocation(location)"
+                      [class.opacity-50]="location.isUsedInApprovedCampaign"
+                      [class.cursor-not-allowed]="location.isUsedInApprovedCampaign"
+                      [title]="location.isUsedInApprovedCampaign ? 'Cannot edit: Location is used in an approved campaign' : 'Edit location'"
+                      class="text-gray-500 hover:text-[#eb7641] transition-colors duration-200">
+                      <i class="ri-edit-line text-lg"></i>
+                    </button>
+                    <button 
+                      (click)="onDeleteClick(location)"
+                      [class.opacity-50]="location.isUsedInApprovedCampaign"
+                      [class.cursor-not-allowed]="location.isUsedInApprovedCampaign"
+                      [title]="location.isUsedInApprovedCampaign ? 'Cannot delete: Location is used in an approved campaign' : 'Delete location'"
+                      class="text-gray-500 hover:text-red-500 transition-colors duration-200">
+                      <i class="ri-delete-bin-line text-lg"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && locations.length === 0" 
+         class="bg-white rounded-xl shadow-sm p-8 text-center mt-8">
+      <div class="max-w-md mx-auto">
+        <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+          <i class="ri-map-pin-line text-[#eb7641] text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No Locations Added Yet</h3>
+        <p class="text-gray-600 mb-6">Start by adding your first location to begin targeting your advertisements.</p>
+        <button 
+          routerLink="/dashboard/addlocation"
+          class="px-6 py-3 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center gap-2 mx-auto">
+          <i class="ri-add-line"></i>
+          Add Your First Location
+        </button>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <app-confirmation-modal
+      [show]="showDeleteModal"
+      title="Delete Location"
+      [message]="'Are you sure you want to delete ' + (locationToDelete?.locationName || 'this location') + '?'"
+      confirmButtonText="Delete"
+      confirmButtonClass="bg-[#eb7641] hover:bg-[#d66937]"
+      (confirm)="onDeleteConfirm()"
+      (cancel)="onDeleteCancel()"
+    ></app-confirmation-modal>

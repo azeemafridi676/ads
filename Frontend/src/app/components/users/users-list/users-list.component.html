@@ -1,0 +1,473 @@
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title mb-0">Users List</h4>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="animate-pulse">
+        <div class="flex justify-between mb-4">
+          <div class="h-10 w-64 bg-gray-200 rounded-lg"></div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left">
+                    <div class="h-4 w-24 bg-gray-200 rounded"></div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left">
+                    <div class="h-4 w-20 bg-gray-200 rounded"></div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left">
+                    <div class="h-4 w-16 bg-gray-200 rounded"></div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left">
+                    <div class="h-4 w-16 bg-gray-200 rounded"></div>
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left">
+                    <div class="h-4 w-20 bg-gray-200 rounded"></div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let i of [1,2,3,4,5]">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center">
+                      <div class="h-12 w-12 bg-gray-200 rounded-full flex-shrink-0"></div>
+                      <div class="ml-3 space-y-2">
+                        <div class="h-4 w-32 bg-gray-200 rounded"></div>
+                        <div class="h-3 w-24 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="space-y-2">
+                      <div class="h-4 w-40 bg-gray-200 rounded"></div>
+                      <div class="h-4 w-32 bg-gray-200 rounded"></div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="h-6 w-16 bg-gray-200 rounded-full"></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="h-6 w-16 bg-gray-200 rounded-full"></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Skeleton Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-xl">
+          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div class="h-5 w-72 bg-gray-200 rounded"></div>
+            <div class="space-x-2 flex">
+              <div class="h-8 w-8 bg-gray-200 rounded"></div>
+              <div class="h-8 w-8 bg-gray-200 rounded"></div>
+              <div class="h-8 w-8 bg-gray-200 rounded"></div>
+              <div class="h-8 w-8 bg-gray-200 rounded"></div>
+              <div class="h-8 w-8 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+
+      <div *ngIf="!loading && !error" class="table-responsive">
+        <div class="flex justify-between mb-4">
+          <div class="relative w-64">
+            <input type="text" 
+                   [(ngModel)]="searchTerm"
+                   (input)="onSearch($event)"
+                   placeholder="Search users..."
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#eb764121] focus:border-[#eb7641] transition-all duration-300">
+            <i class="ri-search-line absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User Details
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <tr *ngFor="let user of users" 
+                    class="hover:bg-gray-50 transition-all duration-300"
+                    [class.expanded-row]="isAnyFieldExpanded(user._id)"
+                    [class.banned-user]="user.isBanned">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center">
+                      <div class="bg-[#eb764115] p-2 rounded-full mr-3 flex-shrink-0">
+                        <ng-container *ngIf="user.profileImage; else initialsTemplate">
+                          <img [src]="user.profileImage" 
+                               class="h-8 w-8 rounded-full object-cover"
+                               [alt]="user.firstName"
+                               appImageNotFound>
+                        </ng-container>
+                        <ng-template #initialsTemplate>
+                          <div class="h-8 w-8 rounded-full bg-[#eb7641] flex items-center justify-center text-white font-medium text-sm">
+                            {{(user.firstName || '').charAt(0).toUpperCase()}}{{(user.lastName || '').charAt(0).toUpperCase()}}
+                          </div>
+                        </ng-template>
+                      </div>
+                      <div class="max-w-[200px] min-w-0">
+                        <div class="text-sm font-medium text-gray-900 break-words mb-1" 
+                             [class.line-clamp-1]="!isExpanded(user._id, 'name')">
+                          {{user.firstName}} {{user.lastName}}
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <span *ngIf="user.isBanned" 
+                                class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-[#00000029] text-red-600">
+                            <i class="ri-forbid-line mr-1"></i> Banned
+                          </span>
+                          <span *ngIf="user.isGiftedSubscription" 
+                                class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-[#eb764115] text-[#eb7641]">
+                            <i class="ri-gift-line mr-1"></i> Gifted
+                          </span>
+                        </div>
+                        <button *ngIf="(user.firstName + ' ' + user.lastName).length > 25"
+                                (click)="toggleExpand(user._id, 'name')"
+                                class="text-xs text-[#eb7641] hover:text-[#eb7641]/80 mt-0.5">
+                          {{ isExpanded(user._id, 'name') ? 'Show less' : 'Show more' }}
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-gray-600">
+                      <div class="flex items-start gap-2 max-w-[200px] group">
+                        <i class="ri-mail-line flex-shrink-0 mt-1"></i>
+                        <div class="min-w-0 flex-1">
+                          <div [class.line-clamp-1]="!isExpanded(user._id, 'email')"
+                               class="break-words">
+                            {{user.email}}
+                          </div>
+                          <div *ngIf="user.email.length > 20"
+                               class="text-xs text-[#eb7641] hover:text-[#eb7641]/80 mt-1 cursor-pointer"
+                               (click)="toggleExpand(user._id, 'email')">
+                            {{ isExpanded(user._id, 'email') ? 'Show less' : 'Show full email' }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flex items-start gap-2 mt-3 max-w-[200px] group">
+                        <i class="ri-phone-line flex-shrink-0 mt-1"></i>
+                        <div class="min-w-0 flex-1">
+                          <div [class.line-clamp-1]="!isExpanded(user._id, 'phone')"
+                               class="break-words">
+                            {{user.phoneNumber || 'No phone number'}}
+                          </div>
+                          <div *ngIf="user.phoneNumber && user.phoneNumber.length > 12"
+                               class="text-xs text-[#eb7641] hover:text-[#eb7641]/80 mt-1 cursor-pointer"
+                               (click)="toggleExpand(user._id, 'phone')">
+                            {{ isExpanded(user._id, 'phone') ? 'Show less' : 'Show full number' }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4 align-top">
+                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full"
+                          [ngClass]="{
+                            'bg-[#eb764115] text-[#eb7641]': user.role === 'user',
+                            'bg-green-100 text-green-800': user.role === 'driver'
+                          }">
+                      {{user.role}}
+                    </span>
+                  </td>
+
+                  <td class="px-6 py-4 align-top">
+                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full transition-all duration-300"
+                          [ngClass]="{
+                            'bg-green-100 text-green-800': user.status === 'online',
+                            'bg-gray-100 text-gray-800': user.status === 'offline'
+                          }">
+                      <span class="flex items-center">
+                        <span class="w-2 h-2 rounded-full mr-2 transition-all duration-300"
+                              [ngClass]="{
+                                'bg-green-500': user.status === 'online',
+                                'bg-gray-400': user.status === 'offline'
+                              }"></span>
+                        {{user.status}}
+                      </span>
+                    </span>
+                  </td>
+
+                  <td class="px-6 py-4 align-top">
+                    <div class="relative" #actionDropdown>
+                      <button (click)="toggleDropdown(user._id)" 
+                              class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-all duration-300">
+                        <i class="ri-more-2-fill text-lg"></i>
+                      </button>
+                      
+                      <div *ngIf="activeDropdown === user._id" 
+                           class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                        <div class="py-1" role="menu">
+                          <button (click)="startChat(user)" 
+                                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                            <i class="ri-chat-3-line"></i>
+                            <span>Chat</span>
+                          </button>
+                          <button (click)="openGiftSubscriptionModal(user)"
+                                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                            <i class="ri-gift-line"></i>
+                            <span>Gift Subscription</span>
+                          </button>
+                          <ng-container *ngIf="!user.isBanned">
+                            <button (click)="showBanConfirmation(user); $event.stopPropagation()"
+                                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                              <i class="ri-forbid-line"></i>
+                              <span>Ban User</span>
+                            </button>
+                          </ng-container>
+                          <ng-container *ngIf="user.isBanned">
+                            <button (click)="unbanUser(user); $event.stopPropagation()"
+                                    class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-2">
+                              <i class="ri-check-line"></i>
+                              <span>Unban User</span>
+                            </button>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Gift Subscription Modal -->
+        <div *ngIf="showGiftSubscriptionModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+          <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-4 transform transition-all max-h-[90vh] flex flex-col"
+               [class.scale-100]="showGiftSubscriptionModal"
+               [class.opacity-100]="showGiftSubscriptionModal">
+            
+            <!-- Modal Header -->
+            <div class="p-6 border-b">
+              <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-semibold text-gray-900">
+                  Gift Subscription to {{selectedUser?.firstName}} {{selectedUser?.lastName}}
+                </h3>
+                <button (click)="closeGiftSubscriptionModal()" 
+                        class="text-gray-400 hover:text-gray-500">
+                  <i class="ri-close-line text-2xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Subscription Cards Grid -->
+            <div class="p-6 overflow-y-auto flex-1">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Loading State -->
+                <ng-container *ngIf="loadingSubscriptions">
+                  <div *ngFor="let i of [1,2,3]" class="border rounded-xl p-4 animate-pulse">
+                    <div class="flex items-start justify-between mb-4">
+                      <div class="w-full">
+                        <div class="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </div>
+                      <div class="w-5 h-5 rounded-full bg-gray-200"></div>
+                    </div>
+                    <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+                  </div>
+                </ng-container>
+
+                <!-- No Subscriptions Message -->
+                <div *ngIf="!loadingSubscriptions && subscriptions.length === 0" 
+                     class="col-span-full text-center py-8">
+                  <div class="text-gray-500">No subscription plans available</div>
+                </div>
+
+                <!-- Subscription Cards -->
+                <div *ngFor="let subscription of subscriptions" 
+                     class="border rounded-xl p-4 cursor-pointer transition-all duration-300"
+                     [class.border-[#eb7641]]="selectedSubscription === subscription"
+                     [class.bg-[#eb764108]]="selectedSubscription === subscription"
+                     (click)="selectSubscription(subscription)">
+                  <div class="flex items-center justify-between">
+                    <div class="min-w-0 flex-1">
+                      <h4 class="text-lg font-semibold text-gray-900 truncate">{{subscription.planName}}</h4>
+                      <p class="text-sm text-gray-500">{{subscription.duration}} month{{subscription.duration > 1 ? 's' : ''}}</p>
+                    </div>
+                    <div class="flex items-center gap-3 flex-shrink-0 ml-3">
+                      <div class="text-[#eb7641] font-semibold">${{subscription.price}}</div>
+                      <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                           [class.border-[#eb7641]]="selectedSubscription === subscription"
+                           [class.bg-[#eb7641]]="selectedSubscription === subscription">
+                        <i *ngIf="selectedSubscription === subscription" 
+                           class="ri-check-line text-white text-sm"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="p-6 border-t">
+              <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                <button (click)="closeGiftSubscriptionModal()" 
+                        class="px-4 py-2 text-base font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-all duration-300">
+                  Cancel
+                </button>
+                <button (click)="giftSubscription()" 
+                        [disabled]="!selectedSubscription"
+                        [class.opacity-50]="!selectedSubscription"
+                        [class.cursor-not-allowed]="!selectedSubscription"
+                        class="px-4 py-2 text-base font-medium text-white bg-[#eb7641] rounded-xl hover:bg-[#eb7641]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#eb7641] transition-all duration-300">
+                  Gift Subscription
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ban Confirmation Modal -->
+        <div *ngIf="showBanModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center">
+          <div class="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 transform transition-all"
+               [class.scale-100]="showBanModal"
+               [class.opacity-100]="showBanModal">
+            <div class="p-8">
+              <div class="flex items-center justify-center mb-6">
+                <i class="ri-error-warning-line text-5xl text-[#eb7641]"></i>
+              </div>
+              <h3 class="text-2xl font-semibold text-gray-900 text-center mb-4">
+                Ban User Confirmation
+              </h3>
+              <p class="text-gray-600 text-center text-lg mb-8">
+                Are you sure you want to ban <span class="font-medium text-gray-900">{{selectedUser?.firstName}} {{selectedUser?.lastName}}</span>? This action will prevent them from accessing the platform.
+              </p>
+              <div class="mb-6">
+                <label for="banReason" class="block text-sm font-medium text-gray-700 mb-2">Reason (Optional)</label>
+                <textarea
+                  id="banReason"
+                  [(ngModel)]="banReason"
+                  rows="3"
+                  class="w-full px-4 py-2 text-base text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#eb764121] focus:border-[#eb7641] transition-all duration-300 resize-none"
+                  placeholder="Enter reason for banning this user...">
+                </textarea>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <button (click)="cancelBan()" 
+                        class="w-full px-4 py-3 text-base font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-all duration-300 order-2 sm:order-1">
+                  Cancel
+                </button>
+                <button (click)="confirmBan()" 
+                        class="w-full px-4 py-3 text-base font-medium text-white bg-[#eb7641] rounded-xl hover:bg-[#eb7641]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#eb7641] transition-all duration-300 order-1 sm:order-2">
+                  Ban User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-xl">
+          <div class="flex flex-1 justify-between sm:hidden">
+            <button
+              [disabled]="currentPage === 1"
+              (click)="onPageChange(currentPage - 1)"
+              [ngClass]="{'cursor-not-allowed opacity-50': currentPage === 1}"
+              class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Previous
+            </button>
+            <button
+              [disabled]="currentPage === totalPages"
+              (click)="onPageChange(currentPage + 1)"
+              [ngClass]="{'cursor-not-allowed opacity-50': currentPage === totalPages}"
+              class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Next
+            </button>
+          </div>
+          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                Showing
+                <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span>
+                to
+                <span class="font-medium">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span>
+                of
+                <span class="font-medium">{{ totalItems }}</span>
+                results
+              </p>
+            </div>
+            <div>
+              <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button
+                  [disabled]="currentPage === 1"
+                  (click)="onPageChange(currentPage - 1)"
+                  [ngClass]="{'cursor-not-allowed opacity-50': currentPage === 1}"
+                  class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                  <span class="sr-only">Previous</span>
+                  <i class="ri-arrow-left-s-line h-5 w-5"></i>
+                </button>
+                
+                <ng-container *ngFor="let page of getPageNumbers()">
+                  <button
+                    (click)="onPageChange(page)"
+                    class="relative inline-flex items-center justify-center w-10 h-10 text-sm font-medium border border-gray-300"
+                    [ngClass]="{
+                      'z-10 bg-[#eb7641] text-white border-[#eb7641]': page === currentPage,
+                      'text-gray-900 hover:bg-gray-50': page !== currentPage
+                    }"
+                    >
+                    {{ page }}
+                  </button>
+                </ng-container>
+                
+                <button
+                  [disabled]="currentPage === totalPages"
+                  (click)="onPageChange(currentPage + 1)"
+                  [ngClass]="{'cursor-not-allowed opacity-50': currentPage === totalPages}"
+                  class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                  <span class="sr-only">Next</span>
+                  <i class="ri-arrow-right-s-line h-5 w-5"></i>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && users.length === 0" 
+           class="bg-white rounded-xl shadow-sm p-8 text-center mt-8">
+        <div class="max-w-md mx-auto">
+          <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+            <i class="ri-user-line text-[#eb7641] text-3xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">No Users Found</h3>
+          <p class="text-gray-600 mb-6">There are no users matching your criteria.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,92 @@
+<div class="min-h-screen bg-white p-16 px-24">
+  <app-navbar
+    (minimize)="minimizeWindow()"
+    (close)="closeWindow()"
+  ></app-navbar>
+
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-[#eb7641] to-orange-600">
+      Select Display Screen
+    </h1>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert">
+      <span class="block sm:inline">{{ error }}</span>
+    </div>
+
+    <!-- Display List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let display of displays" 
+           (click)="selectDisplay(display)"
+           [class.border-[#eb7641]]="selectedDisplay?.id === display.id"
+           class="bg-white p-6 rounded-lg shadow-lg border-2 transition-all duration-300 hover:shadow-xl cursor-pointer">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold text-[#eb7641]">{{ display.name }}</h3>
+          <span *ngIf="display.internal" class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+            Internal
+          </span>
+        </div>
+
+        <!-- Screen Thumbnail -->
+        <div class="mb-4 relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden">
+          <img *ngIf="display.thumbnail" 
+               [src]="display.thumbnail" 
+               [alt]="display.name"
+               class="w-full h-full object-cover">
+          <div *ngIf="!display.thumbnail" class="flex items-center justify-center h-full text-gray-400">
+            Loading preview...
+          </div>
+        </div>
+
+        <div class="space-y-2 text-gray-600">
+          <div class="grid grid-cols-2 gap-2">
+            <span class="font-medium">Scaled Resolution:</span>
+            <span>{{ display.bounds.width }} x {{ display.bounds.height }}</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <span class="font-medium">Physical Resolution:</span>
+            <span>{{ display.bounds.width * display.scaleFactor }} x {{ display.bounds.height * display.scaleFactor }}</span>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-2">
+            <span class="font-medium">Scale Factor:</span>
+            <span>{{ display.scaleFactor }}x ({{ (display.scaleFactor * 100).toFixed(0) }}%)</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <span class="font-medium">Position:</span>
+            <span>{{ display.bounds.x }}, {{ display.bounds.y }}</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <span class="font-medium">Rotation:</span>
+            <span>{{ display.rotation }}°</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <span class="font-medium">Touch Support:</span>
+            <span>{{ display.touchSupport }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="mt-8 flex justify-end space-x-4">
+      <button 
+        routerLink="/app/create-connection"
+        class="px-6 py-2 border-2 border-[#eb7641] text-[#eb7641] rounded-full hover:bg-[#eb7641] hover:text-white transition-colors duration-300">
+        Back
+      </button>
+      
+      <button 
+        routerLink="/app/download-select"
+        [disabled]="!selectedDisplay"
+        [ngClass]="{'bg-[#eb7641] hover:bg-orange-700': selectedDisplay, 'bg-gray-400 cursor-not-allowed': !selectedDisplay}"
+        class="px-6 py-2 text-white rounded-full transition-colors duration-300">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

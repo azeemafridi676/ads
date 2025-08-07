@@ -1,0 +1,115 @@
+<div class="p-6 max-w-2xl mx-auto">
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mb-4 p-4 bg-[#fff5f0] border border-[#eb7641] rounded-lg">
+        <p class="text-[#eb7641] flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            {{ errorMessage }}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()" class="space-y-6 bg-white p-6 rounded-lg shadow-lg">
+        <!-- Name Field -->
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+            <input
+                type="text"
+                id="name"
+                formControlName="name"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+                readonly
+            >
+            <div class="text-sm text-gray-500 mt-1">Name is automatically filled from your profile</div>
+        </div>
+
+        <!-- Rating Field -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+            <div class="flex gap-2">
+                <button
+                    *ngFor="let star of ratings"
+                    type="button"
+                    (click)="setRating(star)"
+                    class="text-2xl focus:outline-none transition-colors duration-200"
+                    [class.text-[#eb7641]]="star <= reviewForm.get('rating')?.value"
+                    [class.text-gray-300]="star > reviewForm.get('rating')?.value"
+                    [class.cursor-not-allowed]="isApprovedReview"
+                    [class.opacity-50]="isApprovedReview"
+                >
+                    ★
+                </button>
+            </div>
+            <div class="text-sm text-gray-500 mt-1">
+                Selected rating: {{ getRatingStars(reviewForm.get('rating')?.value || 0) }}
+            </div>
+        </div>
+
+        <!-- Duration Field -->
+        <div>
+            <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">Campaign Duration</label>
+            <select
+                id="duration"
+                formControlName="duration"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#eb7641] focus:border-transparent"
+                [class.bg-gray-50]="isApprovedReview"
+                [class.cursor-not-allowed]="isApprovedReview"
+            >
+                <option value="">Select campaign duration</option>
+                <option *ngFor="let duration of durations" [value]="duration">
+                    {{ duration }}
+                </option>
+            </select>
+            <div *ngIf="reviewForm.get('duration')?.touched && reviewForm.get('duration')?.invalid" class="text-red text-sm mt-1">
+                Duration is required
+            </div>
+        </div>
+
+        <!-- Comment Field -->
+        <div>
+            <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Your Review</label>
+            <textarea
+                id="comment"
+                formControlName="comment"
+                rows="4"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#eb7641] focus:border-transparent resize-none"
+                placeholder="Update your experience with our advertising services..."
+                [class.bg-gray-50]="isApprovedReview"
+                [class.cursor-not-allowed]="isApprovedReview"
+            ></textarea>
+            <div class="flex justify-between mt-1">
+                <div *ngIf="reviewForm.get('comment')?.touched && reviewForm.get('comment')?.invalid" class="text-red text-sm">
+                    <span *ngIf="reviewForm.get('comment')?.errors?.['required']">Review comment is required</span>
+                    <span *ngIf="reviewForm.get('comment')?.errors?.['minlength']">Comment must be at least 10 characters</span>
+                    <span *ngIf="reviewForm.get('comment')?.errors?.['maxlength']">Comment cannot exceed 500 characters</span>
+                </div>
+                <div class="text-sm text-gray-500">
+                    {{ getCharacterCount() }}/500
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex justify-end gap-4 pt-4">
+            <button
+                type="button"
+                (click)="cancelEdit()"
+                class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-300"
+            >
+                Cancel
+            </button>
+            <button
+                type="submit"
+                [disabled]="!reviewForm.valid || isSubmitting || isApprovedReview"
+                class="px-6 py-2.5 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+                <svg *ngIf="isSubmitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isSubmitting ? 'Updating...' : 'Update Review' }}
+            </button>
+        </div>
+    </form>
+</div> 

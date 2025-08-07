@@ -1,0 +1,132 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+@layer components {
+  .purple-btn-own {
+    @apply focus:outline-none font-light text-white bg-[#eb7641] hover:bg-primary_dark focus:ring-4 focus:ring-primary_extra_light font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-purple-600 dark:hover:bg-primary dark:focus:ring-purple-900;
+  }
+  .purple-btn-light {
+    @apply focus:outline-none font-light text-sm text-black bg-[#31302f] hover:bg-primary_dark focus:ring-4 focus:ring-primary_extra_light font-medium rounded-lg text-sm px-5 py-2.5 text-white dark:bg-purple-600 dark:hover:bg-primary dark:focus:ring-purple-900;
+  }
+  .btn-green {
+    @apply focus:outline-none font-light text-sm text-white bg-[#17E098] focus:ring-4 rounded-lg  px-5 py-2.5  hover:text-white dark:bg-purple-600;
+  }
+  .btn-white {
+    @apply focus:outline-none font-light text-sm text-black bg-white focus:ring-4 rounded-lg  px-5 py-2.5 hover:bg-transparent  hover:text-white border border-white;
+  }
+  .poppins-extrabold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+  }
+  input:focus {
+    box-shadow: none !important;
+  }
+  img,
+  a,
+  i,
+  button {
+    cursor: pointer;
+  }
+  .text-purple {
+    color: #eb7641;
+  }
+  img {
+    transition: all 0.5s ease-in-out;
+    cursor: pointer;
+  }
+  img:hover {
+    transform: scale(1.05);
+    transition: all 0.5s ease-in-out;
+  }
+
+  ::placeholder {
+    color: #caced8 !important;
+  }
+  .border-dashed-large {
+    border-width: 2px !important; /* Adjust the width as needed */
+  }
+  .flex-1 {
+    flex: 1;
+  }
+  .flex-2 {
+    flex: 2;
+  }
+  .login-right img {
+    height: 600px;
+  }
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 5px; /* Width of the scrollbar */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background-color: #eb7641; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Color of the track (scrollbar background) */
+    border-radius: 10px; /* Rounded corners for the scrollbar track */
+  }
+
+  /* Optional: Style the scrollbar when it's being hovered */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: darkgrey; /* Darker color when hovered */
+  }
+
+  @media only screen and (max-width: 1100px) {
+    table {
+      width: 1000px !important;
+    }
+  }
+}
+
+.tooltip {
+  position: relative;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+.route-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}

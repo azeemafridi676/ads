@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+    <!-- Loading State -->
+    <div *ngIf="!error" class="text-center">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-[#eb7641] mx-auto"></div>
+      <p class="mt-6 text-lg text-gray-600">Completing authentication...</p>
+    </div>
+
+    <!-- Not Found Error State -->
+    <div *ngIf="error === 'notfound'" class="text-center">
+      <div class="mb-6">
+        <svg class="mx-auto h-16 w-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Account Not Found</h2>
+      <p class="text-gray-600 mb-6">We found your Google account details. Would you like to sign up with these details?</p>
+      
+      <div class="space-y-4">
+        <button (click)="goToSignup()" 
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#eb7641] hover:bg-[#d66530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#eb7641] transition-colors">
+          Sign Up with Google
+        </button>
+        <button (click)="goToLogin()" 
+                class="w-full flex justify-center py-3 px-4 border border-[#eb7641] rounded-md shadow-sm text-sm font-medium text-[#eb7641] bg-white hover:bg-[#eb7641] hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#eb7641] transition-colors">
+          Back to Login
+        </button>
+      </div>
+    </div>
+
+    <!-- Server Error State -->
+    <div *ngIf="error === 'server'" class="text-center">
+      <div class="mb-6">
+        <svg class="mx-auto h-16 w-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Something Went Wrong</h2>
+      <p class="text-gray-600 mb-6">Please try again later.</p>
+      <button (click)="goToLogin()" 
+              class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#eb7641] hover:bg-[#d66530] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#eb7641] transition-colors">
+        Back to Login
+      </button>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,46 @@
+{
+  "campaigns": [
+    {
+      "id": "1",
+      "campaignTitle": "Summer Sale Extravaganza",
+      "fromDate": "2024-10-11",
+      "toDate": "2024-10-15",
+      "fromTime": "00:00:00",
+      "toTime": "24:00:00",
+      "longitude": 33.6526723,
+      "latitude": 73.062838,
+      "state": "New York",
+      "mediaUrl": "https://cdn.pixabay.com/video/2024/09/24/233024_tiny.mp4",
+      "downloadPath": "C:\\Users\\abc\\Downloads\\campaign_1_summer_sale_extravaganza_video.mp4",
+      "timezone": "America/New_York"
+    },
+    {
+      "id": "2",
+      "campaignTitle": "Back to School Bonanza",
+      "fromDate": "2024-10-11",
+      "toDate": "2024-10-18",
+      "fromTime": "00:30:00",
+      "toTime": "24:00:00",
+      "longitude": 33.6526723,
+      "latitude": 73.062838,
+      "state": "Illinois",
+      "mediaUrl": "https://cdn.pixabay.com/video/2023/11/26/190776-888535446_tiny.mp4",
+      "downloadPath": "C:\\Users\\abc\\Downloads\\campaign_2_back_to_school_bonanza_video.mp4",
+      "timezone": "America/Chicago"
+    },
+    {
+      "id": "3",
+      "campaignTitle": "Good Night Diary",
+      "fromDate": "2024-10-11",
+      "toDate": "2024-10-18",
+      "fromTime": "00:30:00",
+      "toTime": "24:00:00",
+      "longitude": 33.6526723,
+      "latitude": 73.062838,
+      "state": "Illinois",
+      "mediaUrl": "https://images.pexels.com/photos/15756560/pexels-photo-15756560/free-photo-of-woman-looking-at-pictures-in-a-photo-album.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "downloadPath": "C:\\Users\\abc\\Downloads\\campaign_3_good_night_diary_image.jpeg",
+      "timezone": "America/Chicago"
+    }
+  ]
+}

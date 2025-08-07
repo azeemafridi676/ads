@@ -1,0 +1,26 @@
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description-wrapper {
+  position: relative;
+  min-height: 3rem;
+  margin-bottom: 1rem;
+  
+  p {
+    line-height: 1.5;
+    transition: all 0.3s ease;
+  }
+}
+
+// Add smooth transitions for card expansion
+.relative.transform {
+  transition: all 0.3s ease-in-out;
+  
+  > div {
+    transition: height 0.3s ease-in-out;
+  }
+}

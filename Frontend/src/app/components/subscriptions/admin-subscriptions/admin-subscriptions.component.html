@@ -1,0 +1,535 @@
+     
+    <div class="flex  justify-start gap-5 lg-gap-0 lg:justify-between items-center flex-wrap mt-10">
+     
+        <div class="flex justify-between items-center flex-wrap gap-2">
+            <button class="purple-btn-own" (click)="openModal()">Create Subscription</button>
+        </div>
+    </div>
+    <div class="rounded  mx-auto mt-4">
+        <ul id="tabs" class="inline-flex bg-white p-2 rounded w-full border-b">
+            <li [ngClass]="{'bg-[#eb7641] text-white ': selectedTab === 'monthly'}" (click)="selectedTab = 'monthly'" class=" px-4 py-2 cursor-pointer w-1/2 text-center px-4 text-gray-800 font-semibold py-2 rounded -mb-px">
+                Monthly
+            </li>
+            <li [ngClass]="{'bg-[#eb7641] text-white ': selectedTab === 'yearly'}" (click)="selectedTab = 'yearly'" class="px-4 py-2 cursor-pointer w-1/2 text-center px-4 text-gray-800 font-semibold py-2 rounded -mb-px">
+                Yearly
+            </li>
+        </ul>
+        <div id="tab-contents">
+            <div id="first">
+                <!-- Loading Skeleton -->
+                <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 my-8">
+                    <div *ngFor="let i of [1,2,3,4]" class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641] animate-pulse">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                            <div class="h-8 w-8 bg-gray-200 rounded-full"></div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-start">
+                                <div class="h-8 w-32 bg-gray-200 rounded"></div>
+                                <div class="text-right">
+                                    <div class="h-6 w-24 bg-gray-200 rounded"></div>
+                                    <div class="h-4 w-16 bg-gray-200 rounded mt-2"></div>
+                                </div>
+                            </div>
+                            <div class="h-24 bg-gray-200 rounded"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="h-20 bg-gray-200 rounded"></div>
+                                <div class="h-20 bg-gray-200 rounded"></div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="h-6 bg-gray-200 rounded"></div>
+                                <div class="h-6 bg-gray-200 rounded"></div>
+                                <div class="h-6 bg-gray-200 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Subscriptions Message -->
+                <div *ngIf="!loading && (!allPlans || allPlans.length === 0)" class="flex flex-col items-center justify-center py-12">
+                    <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                        <i class="ri-file-list-3-line text-[#eb7641] text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Subscriptions Available</h3>
+                    <p class="text-gray-600 text-center max-w-md mb-6">There are currently no subscription plans available. Click the button below to create your first subscription plan.</p>
+                    <button class="purple-btn-own" (click)="openModal()">Create Subscription</button>
+                </div>
+
+                <!-- Subscription Cards -->
+                <div *ngIf="!loading && allPlans && allPlans.length > 0">
+                    <div *ngIf="hasPlansForSelectedPeriod()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 my-8">
+                        <div *ngFor="let plan of allPlans" class="relative transform hover:scale-105 transition-transform duration-300" 
+                             [style.display]="(plan.duration === 1 && selectedTab === 'monthly') || (plan.duration === 12 && selectedTab === 'yearly') ? 'block' : 'none'">
+                            <div [ngClass]="{'opacity-60 bg-gray-100': !plan.isVisible}" 
+                                 class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641] hover:shadow-xl w-full"
+                                 [style.height]="plan.isDescriptionExpanded ? 'auto' : '700px'">
+                                <div class="flex justify-between items-center mb-6">
+                                    <button (click)="toggleVisibility(plan, $event)" 
+                                            class="text-gray-600 hover:text-[#eb7641] focus:outline-none">
+                                        <ng-container *ngIf="!visibilityLoading[plan._id]; else loadingSpinner">
+                                            <i [class]="plan.isVisible ? 'ri-eye-line text-2xl' : 'ri-eye-off-line text-2xl'"></i>
+                                        </ng-container>
+                                        <ng-template #loadingSpinner>
+                                            <i class="ri-loader-4-line animate-spin text-2xl"></i>
+                                        </ng-template>
+                                    </button>
+
+                                    <div id="toggle">
+                                        <button (click)="toggleMenu(plan, $event)" id="toggle-btn"
+                                                class="text-gray-600 hover:text-[#eb7641] focus:outline-none"
+                                                [class.opacity-50]="plan.isInUse"
+                                                [class.cursor-not-allowed]="plan.isInUse"
+                                                [title]="plan.isInUse ? 'This plan is in use and cannot be modified' : ''">
+                                            <i class="ri-more-2-fill text-2xl"></i>
+                                        </button>
+                                        <div *ngIf="selectedPlan?._id===plan?._id"
+                                             class="absolute right-8 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                                            <ul class="py-2">
+                                                <li *ngIf="!plan.isInUse" 
+                                                    (click)="editPlan(plan, $event)"
+                                                    class="px-4 py-2 text-gray-700 hover:text-orange transition-colors duration-200 cursor-pointer flex items-center gap-2">
+                                                    <i class="ri-edit-line"></i> Edit
+                                                </li>
+                                                <li *ngIf="!plan.isInUse" 
+                                                    (click)="deletePlan(plan, $event)"
+                                                    class="px-4 py-2 text-gray-700 hover:text-orange cursor-pointer flex items-center gap-2">
+                                                    <ng-container *ngIf="!deleteLoading[plan._id]; else deleteLoadingSpinner">
+                                                        <i class="ri-delete-bin-line"></i> Delete
+                                                    </ng-container>
+                                                    <ng-template #deleteLoadingSpinner>
+                                                        <i class="ri-loader-4-line animate-spin"></i> Deleting...
+                                                    </ng-template>
+                                                </li>
+                                                <li *ngIf="plan.isInUse" 
+                                                    class="px-4 py-2 text-gray-400 cursor-not-allowed flex items-center gap-2">
+                                                    <i class="ri-information-line"></i> Plan in use
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-col space-y-6">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="text-3xl font-bold text-[#eb7641]">{{plan.planName}}</h3>
+                                        <div class="text-right">
+                                            <span class="text-2xl font-bold text-gray-800">${{plan.price}}</span>
+                                            <p class="text-sm text-gray-500">per {{plan.duration}} months</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="relative description-wrapper bg-white rounded-lg p-4 mb-6">
+                                        <p #descriptionText class="text-gray-600 text-lg pr-6" 
+                                           [ngClass]="{'line-clamp-2': !plan.isDescriptionExpanded && plan.needsExpansion}">
+                                           {{plan.description}}
+                                        </p>
+                                        <div *ngIf="plan.needsExpansion" 
+                                             (click)="toggleDescription(plan, $event)" 
+                                             class="absolute -bottom-1 right-2 flex items-center gap-1 text-[#eb7641] hover:text-[#d35e2a] cursor-pointer group">
+                                            <div class="flex items-center text-xs font-medium">
+                                                {{plan.isDescriptionExpanded ? 'Less' : 'More'}}
+                                                <i [class]="plan.isDescriptionExpanded ? 'ri-arrow-up-s-fill text-base ml-0.5' : 'ri-arrow-down-s-fill text-base ml-0.5'"></i>
+                                            </div>
+                                            <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#eb7641] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4 mt-4">
+                                        <div class="bg-white p-4 rounded-lg shadow">
+                                            <p class="text-sm text-gray-500">Campaign Limit</p>
+                                            <p class="text-xl font-semibold text-[#eb7641]">{{plan.campaignLimit}}</p>
+                                        </div>
+                                        <div class="bg-white p-4 rounded-lg shadow">
+                                            <p class="text-sm text-gray-500">Location Limit</p>
+                                            <p class="text-xl font-semibold text-[#eb7641]">{{plan.locationLimit}}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-2">
+                                            <i class="ri-time-line text-[#eb7641]"></i>
+                                            <span class="text-gray-600">Ad Video Time: {{plan.adVedioTimeLimit}} minutes</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="ri-calendar-line text-[#eb7641]"></i>
+                                            <span class="text-gray-600">Campaign Duration: {{plan.adCampaignTimeLimit}} days</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="ri-flag-line text-[#eb7641]"></i>
+                                            <span class="text-gray-600">Priority Level: {{plan.priority}}</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="ri-radar-line text-[#eb7641]"></i>
+                                            <span class="text-gray-600">Coverage Radius: {{plan.allowedRadius}} km</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <i class="ri-repeat-line text-[#eb7641]"></i>
+                                            <span class="text-gray-600">Run Cycle Limit: {{plan.runCycleLimit}}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-t pt-4 mt-4">
+                                        <div class="flex justify-between text-sm text-gray-500">
+                                            <div>
+                                                <p>Launch Date</p>
+                                                <p class="font-medium text-gray-700">{{plan.launchDate | date}}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p>Expiry Date</p>
+                                                <p class="font-medium text-gray-700">{{plan.expiryDate | date}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <i class="ri-checkbox-circle-line" [class.text-green-500]="plan.isCompleted" [class.text-gray-400]="!plan.isCompleted"></i>
+                                                <span [class.text-green-500]="plan.isCompleted" [class.text-gray-500]="!plan.isCompleted">
+                                                    {{plan.isCompleted ? 'Completed' : 'Active'}}
+                                                </span>
+                                            </div>
+                                            <div *ngIf="plan.isCompleted" class="text-sm text-gray-500">
+                                                Completed on: {{plan.completedAt | date}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="!hasPlansForSelectedPeriod()" class="flex flex-col items-center justify-center py-12">
+                        <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                            <i class="ri-file-list-3-line text-[#eb7641] text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No {{selectedTab === 'monthly' ? 'Monthly' : 'Yearly'}} Plans Available</h3>
+                        <p class="text-gray-600 text-center max-w-md mb-6">{{getNoPlansMessage()}}</p>
+                        <button (click)="openModal()" class="purple-btn-own">
+                            Create {{selectedTab === 'monthly' ? 'Monthly' : 'Yearly'}} Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div *ngIf="isVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 p-4 overflow-y-auto">
+    <div @modalAnimation class="relative w-full max-w-2xl mx-auto bg-white rounded-lg shadow dark:bg-gray-700 my-8">
+        <!-- Modal Header -->
+        <div class="sticky top-0 flex items-center justify-between p-3 md:p-4 border-b rounded-t dark:border-gray-600 bg-white z-10">
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white">
+                Create New Subscription
+            </h3>
+            <button type="button"
+                class="text-black bg-transparent border border-black rounded-full hover:bg-gray-200 hover:text-gray-900 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                (click)="closeModal()">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="#000"
+                    viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-3 md:p-4 space-y-4 max-h-[calc(100vh-16rem)] overflow-y-auto">
+            <form [formGroup]="subscriptionForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="planName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Plan Name <span class="text-xs text-gray-500">(e.g., Basic, Premium, Pro)</span>
+                        </label>
+                        <input type="text" id="planName" formControlName="planName"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Enter a descriptive plan name" />
+                    </div>
+                    <div>
+                        <label for="duration" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Duration <span class="text-xs text-gray-500">(1 or 12 months)</span>
+                        </label>
+                        <input type="number" id="duration" formControlName="duration"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Enter 1 for monthly or 12 for yearly" />
+                        <p class="mt-1 text-xs text-gray-500">Enter 1 for monthly or 12 for yearly subscription</p>
+                        <div *ngIf="subscriptionForm.get('duration')?.touched && subscriptionForm.get('duration')?.errors" 
+                            class="mt-1 text-sm text-red">
+                            {{getDurationErrorMessage(subscriptionForm)}}
+                        </div>
+                    </div>
+                    <div>
+                        <label for="campaignLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Campaign Limit <span class="text-xs text-gray-500">(Ads per subscription)</span>
+                        </label>
+                        <input type="number" id="campaignLimit" formControlName="campaignLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Number of ad campaigns allowed" />
+                        <p class="mt-1 text-xs text-gray-500">Maximum number of ad campaigns a user can create</p>
+                    </div>
+                    <div>
+                        <label for="allowedRadius" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Coverage Radius <span class="text-xs text-gray-500">(in meters)</span>
+                        </label>
+                        <input type="number" id="allowedRadius" formControlName="allowedRadius"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="e.g., 1000 for 1km radius" />
+                        <p class="mt-1 text-xs text-gray-500">Geographic reach of ads from their center point</p>
+                    </div>
+                    <div>
+                        <label for="runCycleLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Run Cycle Limit <span class="text-xs text-gray-500">(replays per campaign)</span>
+                        </label>
+                        <input type="number" id="runCycleLimit" formControlName="runCycleLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Number of times each campaign can run" />
+                        <p class="mt-1 text-xs text-gray-500">How many times a campaign can be repeated</p>
+                    </div>
+                    <div>
+                        <label for="locationLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Location Limit <span class="text-xs text-gray-500">(per campaign)</span>
+                        </label>
+                        <input type="number" id="locationLimit" formControlName="locationLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Number of locations per campaign" />
+                        <p class="mt-1 text-xs text-gray-500">How many different locations each campaign can target</p>
+                    </div>
+                    <div>
+                        <label for="adVedioTimeLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Video Time Limit <span class="text-xs text-gray-500">(minutes per ad)</span>
+                        </label>
+                        <input type="number" id="adVedioTimeLimit" formControlName="adVedioTimeLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Maximum video duration in minutes" />
+                        <p class="mt-1 text-xs text-gray-500">Maximum length of each advertisement video</p>
+                    </div>
+                    <div>
+                        <label for="adCampaignTimeLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Campaign Duration <span class="text-xs text-gray-500">(days)</span>
+                        </label>
+                        <input type="number" id="adCampaignTimeLimit" formControlName="adCampaignTimeLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="How long a campaign can run (in days)" />
+                        <p class="mt-1 text-xs text-gray-500">Maximum duration each campaign can be active</p>
+                    </div>
+                    <div>
+                        <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Price <span class="text-xs text-gray-500">(USD)</span>
+                        </label>
+                        <input type="number" id="price" formControlName="price"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Subscription price in USD" />
+                        <p class="mt-1 text-xs text-gray-500">Cost of the subscription plan</p>
+                    </div>
+                    <div>
+                        <label for="priority" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Priority Level <span class="text-xs text-gray-500">(1-10, higher = better)</span>
+                        </label>
+                        <input type="number" id="priority" formControlName="priority"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Priority level (1-10)" />
+                        <p class="mt-1 text-xs text-gray-500">Higher priority plans get better ad placement</p>
+                    </div>
+                    <div>
+                        <label for="launchDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Launch Date <span class="text-xs text-gray-500">(when plan becomes available)</span>
+                        </label>
+                        <input type="date" id="launchDate" formControlName="launchDate"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+                        <p class="mt-1 text-xs text-gray-500">When this subscription plan becomes available for purchase</p>
+                    </div>
+                    <div>
+                        <label for="expiryDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Expiry Date <span class="text-xs text-gray-500">(when plan ends)</span>
+                        </label>
+                        <input type="date" id="expiryDate" formControlName="expiryDate"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+                        <p class="mt-1 text-xs text-gray-500">Last date this subscription plan will be available</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Description <span class="text-xs text-gray-500">(plan features & benefits)</span>
+                    </label>
+                    <textarea id="description" formControlName="description" rows="4"
+                        class="resize-none block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Describe the key features and benefits of this subscription plan"></textarea>
+                    <p class="mt-1 text-xs text-gray-500">Detailed description of what's included in this plan</p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div
+            class="flex items-center justify-end p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600">
+            <button type="button" (click)="closeModal()" class="purple-btn-light">Cancel</button>
+            <button type="submit" (click)="addSubscription()" class="purple-btn-own">
+                <ng-container *ngIf="loading; else buttonText">
+                    <app-spinner></app-spinner>
+                </ng-container>
+                <ng-template #buttonText>
+                    Save
+                </ng-template>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div *ngIf="isEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 p-4 overflow-y-auto">
+    <div @modalAnimation class="relative w-full max-w-2xl mx-auto bg-white rounded-lg shadow dark:bg-gray-700 my-8">
+        <!-- Modal Header -->
+        <div class="sticky top-0 flex items-center justify-between p-3 md:p-4 border-b rounded-t dark:border-gray-600 bg-white z-10">
+            <h3 class="text-xl font-medium text-gray-900 dark:text-white">
+                Edit Subscription
+            </h3>
+            <button type="button"
+                class="text-black bg-transparent border border-black rounded-full hover:bg-gray-200 hover:text-gray-900 text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                (click)="closeEditModal()">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="#000"
+                    viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-3 md:p-4 space-y-4 max-h-[calc(100vh-16rem)] overflow-y-auto">
+            <form [formGroup]="subscriptionEditForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="planName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Plan Name <span class="text-xs text-gray-500">(e.g., Basic, Premium, Pro)</span>
+                        </label>
+                        <input type="text" id="planName" formControlName="planName"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Enter a descriptive plan name" />
+                    </div>
+                    <div>
+                        <label for="duration" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Duration <span class="text-xs text-gray-500">(1-36 months)</span>
+                        </label>
+                        <input type="number" id="duration" formControlName="duration"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Enter subscription duration (e.g., 1, 6, 12)" />
+                        <p class="mt-1 text-xs text-gray-500">Subscription length in months (max 36 months)</p>
+                        <div *ngIf="subscriptionEditForm.get('duration')?.touched && subscriptionEditForm.get('duration')?.errors" 
+                            class="mt-1 text-sm text-red">
+                            {{getDurationErrorMessage(subscriptionEditForm)}}
+                        </div>
+                    </div>
+                    <div>
+                        <label for="campaignLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Campaign Limit <span class="text-xs text-gray-500">(Ads per subscription)</span>
+                        </label>
+                        <input type="number" id="campaignLimit" formControlName="campaignLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Number of ad campaigns allowed" />
+                        <p class="mt-1 text-xs text-gray-500">Maximum number of ad campaigns a user can create</p>
+                    </div>
+                    <div>
+                        <label for="locationLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Location Limit <span class="text-xs text-gray-500">(per campaign)</span>
+                        </label>
+                        <input type="number" id="locationLimit" formControlName="locationLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Number of locations per campaign" />
+                        <p class="mt-1 text-xs text-gray-500">How many different locations each campaign can target</p>
+                    </div>
+                    <div>
+                        <label for="adVedioTimeLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Video Time Limit <span class="text-xs text-gray-500">(minutes per ad)</span>
+                        </label>
+                        <input type="number" id="adVedioTimeLimit" formControlName="adVedioTimeLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Maximum video duration in minutes" />
+                        <p class="mt-1 text-xs text-gray-500">Maximum length of each advertisement video</p>
+                    </div>
+                    <div>
+                        <label for="adCampaignTimeLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Campaign Duration <span class="text-xs text-gray-500">(days)</span>
+                        </label>
+                        <input type="number" id="adCampaignTimeLimit" formControlName="adCampaignTimeLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="How long a campaign can run (in days)" />
+                        <p class="mt-1 text-xs text-gray-500">Maximum duration each campaign can be active</p>
+                    </div>
+                    <div>
+                        <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Price <span class="text-xs text-gray-500">(USD)</span>
+                        </label>
+                        <input type="number" id="price" formControlName="price"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Subscription price in USD" />
+                        <p class="mt-1 text-xs text-gray-500">Cost of the subscription plan</p>
+                    </div>
+                    <div>
+                        <label for="priority" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Priority Level <span class="text-xs text-gray-500">(1-10, higher = better)</span>
+                        </label>
+                        <input type="number" id="priority" formControlName="priority"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Priority level (1-10)" />
+                        <p class="mt-1 text-xs text-gray-500">Higher priority plans get better ad placement</p>
+                    </div>
+                    <div>
+                        <label for="launchDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Launch Date <span class="text-xs text-gray-500">(when plan becomes available)</span>
+                        </label>
+                        <input type="date" id="launchDate" formControlName="launchDate"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+                        <p class="mt-1 text-xs text-gray-500">When this subscription plan becomes available for purchase</p>
+                    </div>
+                    <div>
+                        <label for="expiryDate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Expiry Date <span class="text-xs text-gray-500">(when plan ends)</span>
+                        </label>
+                        <input type="date" id="expiryDate" formControlName="expiryDate"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+                        <p class="mt-1 text-xs text-gray-500">Last date this subscription plan will be available</p>
+                    </div>
+                    <div>
+                        <label for="allowedRadius" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Coverage Radius <span class="text-xs text-gray-500">(in meters)</span>
+                        </label>
+                        <input type="number" id="allowedRadius" formControlName="allowedRadius"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="e.g., 1000 for 1km radius" />
+                        <p class="mt-1 text-xs text-gray-500">Geographic reach of ads from their center point</p>
+                    </div>
+                    <div>
+                        <label for="runCycleLimit" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Run Cycle Limit <span class="text-xs text-gray-500">(replays per campaign)</span>
+                        </label>
+                        <input type="number" id="runCycleLimit" formControlName="runCycleLimit"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="Number of times each campaign can run" />
+                        <p class="mt-1 text-xs text-gray-500">How many times a campaign can be repeated</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Description <span class="text-xs text-gray-500">(plan features & benefits)</span>
+                    </label>
+                    <textarea id="description" formControlName="description" rows="4"
+                        class="resize-none block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Describe the key features and benefits of this subscription plan"></textarea>
+                    <p class="mt-1 text-xs text-gray-500">Detailed description of what's included in this plan</p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Modal Footer -->
+        <div
+            class="flex items-center justify-end p-4 md:p-5 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600">
+            <button type="button" (click)="closeEditModal()" class="purple-btn-light">Cancel</button>
+            <button type="submit" (click)="updateSubscription()" class="purple-btn-own">
+                <ng-container *ngIf="loading; else buttonText">
+                    <app-spinner></app-spinner>
+                </ng-container>
+                <ng-template #buttonText>
+                    Save
+                </ng-template>
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,289 @@
+<app-spinner *ngIf="loading"></app-spinner>
+<div *ngIf="!loading">
+    <!-- No Current Subscription Message -->
+    <div *ngIf="!userDetail?.currentSubscription" class="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-lg border-t-4 border-[#eb7641] my-6">
+        <div class="flex flex-col items-center text-center py-6">
+            <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                <i class="ri-shopping-cart-line text-[#eb7641] text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-3">No Active Subscription</h3>
+            <p class="text-gray-600 max-w-lg mb-2">You currently don't have any active subscription plan. Choose from our available plans below to start showcasing your ads and reaching more customers.</p>
+            <div class="flex items-center gap-2 text-[#eb7641]">
+                <i class="ri-arrow-down-line animate-bounce"></i>
+                <span>View Available Plans Below</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Subscription Details (when exists) -->
+    <div *ngIf="userDetail?.currentSubscription" class="bg-gradient-to-br from-white to-gray-50 p-6 rounded-xl shadow-lg border-t-4 border-[#eb7641] my-6">
+        <div class="flex justify-between items-start mb-6">
+            <h3 class="text-2xl font-bold text-gray-800">Current Subscription</h3>
+            <div class="flex items-center gap-2">
+                <div class="px-4 py-1 rounded-full" [ngClass]="{'bg-green-100 text-green-800': userDetail.subscriptionStatus === 'active' && !isSubscriptionCompleted(), 'bg-yellow-100 text-yellow-800': isSubscriptionCompleted(), 'bg-red-100 text-red-800': userDetail.subscriptionStatus !== 'active' && !isSubscriptionCompleted()}">
+                    {{isSubscriptionCompleted() ? 'Completed' : userDetail.subscriptionStatus | titlecase}}
+                </div>
+                <div *ngIf="isSubscriptionCompleted()" class="text-sm text-gray-500">
+                    (Completed on {{userDetail.currentSubscription.completedAt | date}})
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-lg shadow">
+                <div class="flex items-center gap-3 mb-3">
+                    <i class="ri-vip-crown-line text-[#eb7641] text-xl"></i>
+                    <h4 class="text-lg font-semibold text-[#eb7641]">{{userDetail.currentSubscription.planName}}</h4>
+                </div>
+                <div class="relative description-wrapper bg-white rounded p-4">
+                    <p #currentDescriptionText class="text-gray-600 text-lg pr-6" 
+                       [ngClass]="{'line-clamp-2': !userDetail.currentSubscription.isDescriptionExpanded}">
+                        {{userDetail.currentSubscription.description}}
+                    </p>
+                    <div *ngIf="userDetail.currentSubscription.description?.length > 100" 
+                         (click)="toggleDescription(userDetail.currentSubscription, $event)" 
+                         class="absolute -bottom-1 right-2 flex items-center gap-1 text-[#eb7641] hover:text-[#d35e2a] cursor-pointer group">
+                        <div class="flex items-center text-xs font-medium">
+                            {{userDetail.currentSubscription.isDescriptionExpanded ? 'Less' : 'More'}}
+                            <i [class]="userDetail.currentSubscription.isDescriptionExpanded ? 'ri-arrow-up-s-fill text-base ml-0.5' : 'ri-arrow-down-s-fill text-base ml-0.5'"></i>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#eb7641] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+                    </div>
+                </div>
+                <div class="mt-3 text-2xl font-bold text-gray-800">${{userDetail.currentSubscription.price}}</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-lg shadow">
+                <h4 class="text-gray-600 mb-3">Subscription Period</h4>
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <i class="ri-calendar-check-line text-[#eb7641]"></i>
+                        <span>Start: {{userDetail.subscriptionStartDate | date}}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="ri-calendar-close-line text-[#eb7641]"></i>
+                        <span>End: {{userDetail.subscriptionEndDate | date}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-lg shadow">
+                <h4 class="text-gray-600 mb-3">Plan Features</h4>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span>Campaigns:</span>
+                        <span class="font-semibold text-[#eb7641]">{{userDetail.currentSubscription.campaignLimit}}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Locations:</span>
+                        <span class="font-semibold text-[#eb7641]">{{userDetail.currentSubscription.locationLimit}}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Video Time:</span>
+                        <span class="font-semibold text-[#eb7641]">{{userDetail.currentSubscription.adVedioTimeLimit}} min</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span>Run Cycles:</span>
+                        <span class="font-semibold text-[#eb7641]">{{userDetail.currentSubscription.runCycleLimit}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rounded  mx-auto mt-4">
+        <ul id="tabs" class="inline-flex bg-white p-2 rounded w-full border-b">
+            <li [ngClass]="{'bg-[#eb7641] text-white ': selectedTab === 'monthly'}" (click)="selectedTab = 'monthly'" class=" px-4 py-2 cursor-pointer w-1/2 text-center px-4 text-gray-800 font-semibold py-2 rounded -mb-px">
+                Monthly
+            </li>
+            <li [ngClass]="{'bg-[#eb7641] text-white ': selectedTab === 'yearly'}" (click)="selectedTab = 'yearly'" class="px-4 py-2 cursor-pointer w-1/2 text-center px-4 text-gray-800 font-semibold py-2 rounded -mb-px">
+                Yearly
+            </li>
+        </ul>
+        <div id="tab-contents">
+            <div id="first">
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Loading Skeleton -->
+                            <div *ngIf="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div *ngFor="let i of [1,2,3]" class="bg-white p-6 rounded-xl shadow-lg animate-pulse">
+                                    <div class="flex justify-between items-start mb-6">
+                                        <div class="space-y-3">
+                                            <div class="h-8 w-32 bg-gray-200 rounded"></div>
+                                            <div class="h-4 w-24 bg-gray-200 rounded"></div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="h-6 w-20 bg-gray-200 rounded"></div>
+                                            <div class="h-4 w-16 bg-gray-200 rounded mt-2"></div>
+                                        </div>
+                                    </div>
+                                    <div class="h-24 bg-gray-200 rounded mb-6"></div>
+                                    <div class="space-y-4">
+                                        <div class="h-6 bg-gray-200 rounded"></div>
+                                        <div class="h-6 bg-gray-200 rounded"></div>
+                                        <div class="h-6 bg-gray-200 rounded"></div>
+                                    </div>
+                                    <div class="mt-6">
+                                        <div class="h-10 bg-gray-200 rounded-lg w-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- No Subscriptions Message -->
+                            <div *ngIf="!loading && (!allPlans || allPlans.length === 0)" class="flex flex-col items-center justify-center py-12">
+                                <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                                    <i class="ri-file-list-3-line text-[#eb7641] text-3xl"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Subscriptions Available</h3>
+                                <p class="text-gray-600 text-center max-w-md">Please check back later for available subscription plans.</p>
+                            </div>
+
+                            <!-- Subscription Plans -->
+                            <div *ngIf="!loading && allPlans && allPlans.length > 0">
+                                <div *ngIf="hasPlansForSelectedPeriod()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 my-8">
+                                    <ng-container *ngFor="let plan of allPlans">
+                                        <div *ngIf="plan.duration === 1 && selectedTab === 'monthly' || plan.duration === 12 && selectedTab === 'yearly'" class="relative transform hover:scale-105 transition-transform duration-300">
+                                            <div class="bg-gradient-to-br from-white to-gray-50 p-8 rounded-xl shadow-lg border-t-4 border-[#eb7641] hover:shadow-xl"
+                                                 [style.height]="plan.isDescriptionExpanded ? 'auto' : '700px'">
+                                                <div class="flex flex-col space-y-6">
+                                                    <div class="flex justify-between items-start">
+                                                        <h3 class="text-3xl font-bold text-[#eb7641]">{{plan.planName}}</h3>
+                                                        <div class="text-right">
+                                                            <span class="text-2xl font-bold text-gray-800">${{plan.price}}</span>
+                                                            <p class="text-sm text-gray-500">per {{plan.duration}} months</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="relative description-wrapper bg-white rounded-lg p-4">
+                                                        <p #descriptionText class="text-gray-600 text-lg pr-6" 
+                                                           [ngClass]="{'line-clamp-2': !plan.isDescriptionExpanded && plan.needsExpansion}">
+                                                           {{plan.description}}
+                                                        </p>
+                                                        <div *ngIf="plan.needsExpansion" 
+                                                             (click)="toggleDescription(plan, $event)" 
+                                                             class="absolute -bottom-1 right-2 flex items-center gap-1 text-[#eb7641] hover:text-[#d35e2a] cursor-pointer group">
+                                                            <div class="flex items-center text-xs font-medium">
+                                                                {{plan.isDescriptionExpanded ? 'Less' : 'More'}}
+                                                                <i [class]="plan.isDescriptionExpanded ? 'ri-arrow-up-s-fill text-base ml-0.5' : 'ri-arrow-down-s-fill text-base ml-0.5'"></i>
+                                                            </div>
+                                                            <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-[#eb7641] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-2 gap-4 mt-4">
+                                                        <div class="bg-white p-4 rounded-lg shadow">
+                                                            <p class="text-sm text-gray-500">Campaign Limit</p>
+                                                            <p class="text-xl font-semibold text-[#eb7641]">{{plan.campaignLimit}}</p>
+                                                        </div>
+                                                        <div class="bg-white p-4 rounded-lg shadow">
+                                                            <p class="text-sm text-gray-500">Location Limit</p>
+                                                            <p class="text-xl font-semibold text-[#eb7641]">{{plan.locationLimit}}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-3">
+                                                        <div class="flex items-center gap-2">
+                                                            <i class="ri-time-line text-[#eb7641]"></i>
+                                                            <span class="text-gray-600">Ad Video Time: {{plan.adVedioTimeLimit}} minutes</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <i class="ri-calendar-line text-[#eb7641]"></i>
+                                                            <span class="text-gray-600">Campaign Duration: {{plan.adCampaignTimeLimit}} days</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <i class="ri-flag-line text-[#eb7641]"></i>
+                                                            <span class="text-gray-600">Priority Level: {{plan.priority}}</span>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <i class="ri-radar-line text-[#eb7641]"></i>
+                                                            <span class="text-gray-600">Coverage Radius: {{plan.allowedRadius}} meters</span>
+                                                            <div class="relative group">
+                                                                <i class="ri-information-line text-gray-400 cursor-help"></i>
+                                                                <div class="absolute hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 bottom-full left-1/2 transform -translate-x-1/2 mb-2">
+                                                                    Maximum distance your ads can reach from selected location point
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <i class="ri-repeat-line text-[#eb7641]"></i>
+                                                            <span class="text-gray-600">Run Cycle Limit: {{plan.runCycleLimit}}</span>
+                                                            <div class="relative group">
+                                                                <i class="ri-information-line text-gray-400 cursor-help"></i>
+                                                                <div class="absolute hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 bottom-full left-1/2 transform -translate-x-1/2 mb-2">
+                                                                    Number of times each campaign can be run under this plan
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="border-t pt-4 mt-4">
+                                                        <div class="flex justify-between text-sm text-gray-500">
+                                                            <div>
+                                                                <p>Launch Date</p>
+                                                                <p class="font-medium text-gray-700">{{plan.launchDate | date}}</p>
+                                                            </div>
+                                                            <div class="text-right">
+                                                                <p>Expiry Date</p>
+                                                                <p class="font-medium text-gray-700">{{plan.expiryDate | date}}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mt-4">
+                                                        <div *ngIf="loading" class="flex justify-center">
+                                                            <app-spinner></app-spinner>
+                                                        </div>
+                                                        
+                                                        <button *ngIf="isCurrentPlan(plan.stripePlanId) && !isSubscriptionCompleted()" 
+                                                            class="w-full px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]">
+                                                            <i class="ri-check-line"></i>
+                                                            Activated
+                                                        </button>
+
+                                                        <button *ngIf="isCurrentPlan(plan.stripePlanId) && isSubscriptionCompleted()" 
+                                                            (click)="purchasePlan(plan.stripePlanId)"
+                                                            [disabled]="loadingPurchase[plan.stripePlanId]"
+                                                            class="w-full px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]">
+                                                            <ng-container *ngIf="!loadingPurchase[plan.stripePlanId]">
+                                                                <i class="ri-refresh-line"></i>
+                                                                Renew Plan
+                                                            </ng-container>
+                                                            <app-spinner *ngIf="loadingPurchase[plan.stripePlanId]" class="w-6 h-6"></app-spinner>
+                                                        </button>
+
+                                                        <button *ngIf="!isCurrentPlan(plan.stripePlanId)" 
+                                                            (click)="purchasePlan(plan.stripePlanId)" 
+                                                            [disabled]="loadingPurchase[plan.stripePlanId]"
+                                                            class="w-full px-6 py-3 text-white bg-[#eb7641] rounded-lg hover:bg-[#d66937] transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px]">
+                                                            <ng-container *ngIf="!loadingPurchase[plan.stripePlanId]">
+                                                                <i class="ri-shopping-cart-line"></i>
+                                                                Buy Now
+                                                            </ng-container>
+                                                            <app-spinner *ngIf="loadingPurchase[plan.stripePlanId]" class="w-6 h-6"></app-spinner>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                                <div *ngIf="!hasPlansForSelectedPeriod()" class="flex flex-col items-center justify-center py-12">
+                                    <div class="bg-[#eb764115] p-4 rounded-full w-16 h-16 flex items-center justify-center mb-4">
+                                        <i class="ri-file-list-3-line text-[#eb7641] text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No {{selectedTab === 'monthly' ? 'Monthly' : 'Yearly'}} Plans Available</h3>
+                                    <p class="text-gray-600 text-center max-w-md mb-6">{{getNoPlansMessage()}}</p>
+                                    <button (click)="selectedTab = selectedTab === 'monthly' ? 'yearly' : 'monthly'" 
+                                            class="px-4 py-2 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937] transition-colors duration-300">
+                                        View {{selectedTab === 'monthly' ? 'Yearly' : 'Monthly'}} Plans
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

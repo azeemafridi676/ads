@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #eb7641 0%, #d66937 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+        }
+
+        .content {
+            padding: 40px 30px;
+            background: white;
+        }
+
+        .verification-box {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 16px;
+            padding: 35px;
+            text-align: center;
+            margin: 30px 0;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .otp-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #eb7641 0%, #d66937 100%);
+            border-radius: 20px;
+            text-align: center;
+            line-height: 65px;
+            margin: auto;
+            box-shadow: 0 4px 6px -1px rgba(235,118,65,0.3);
+            margin-bottom: 25px;
+        }
+
+        .otp-code {
+            font-size: 38px;
+            letter-spacing: 10px;
+            color: #eb7641;
+            font-weight: 600;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 2px solid rgba(235, 118, 65, 0.1);
+            display: inline-block;
+            margin: 20px 0;
+            box-shadow:
+                0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                0 0 0 4px rgba(235, 118, 65, 0.05);
+        }
+
+        .info-card {
+            background: #2d3748;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 180px;
+            height: 180px;
+            background: linear-gradient(135deg, #eb7641 0%, #d66937 100%);
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .button {
+            display: inline-block;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, #eb7641 0%, #d66937 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            margin-top: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(235, 118, 65, 0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgba(235, 118, 65, 0.4);
+        }
+
+        .footer {
+            background: #2d3748;
+            padding: 35px 30px;
+            text-align: center;
+            color: #a0aec0;
+        }
+
+        .social-links {
+            margin: 25px auto;
+            text-align: center;
+        }
+
+        .social-icon {
+            display: inline-block;
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #eb7641;
+            text-decoration: none;
+            margin: 0 8px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .social-text {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            text-decoration: none;
+            margin: 0 8px;
+            font-size: 13px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .social-text:hover {
+            background: #eb7641;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="background: #eb7641; padding: 40px 30px; text-align: center; position: relative;">
+                <!-- Brand Name with Inline Styles -->
+                <div style="display: inline-block; padding: 15px 30px; font-size: 48px; color: #ffffff; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; font-family: 'Poppins', Arial, sans-serif; background: -webkit-linear-gradient(left, #eb7641, #d66937); background: linear-gradient(to right, #eb7641, #d66937); border: 3px solid rgba(255, 255, 255, 0.4); border-radius: 10px; text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2); line-height: 1; mso-line-height-rule: exactly;">HaulAdz</div>
+                <h1 style="color: #ffffff; font-size: 28px; margin: 25px 0 0; font-weight: 600;">Verify Your Account</h1>
+                <p style="color: #ffffff; opacity: 0.9; margin-top: 10px; font-size: 16px;">Welcome to HaulAdz - Your Digital Advertising Partner</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2 style="color: #2d3748; font-size: 24px; margin: 0; font-weight: 600;">Hi {{userName}},</h2>
+            <p style="color: #4a5568; margin-top: 12px; line-height: 1.6;">
+                Thank you for choosing HaulAdz! To complete your registration and start your advertising journey, please
+                use the verification code below.
+            </p>
+
+            <div class="verification-box">
+                <div class="otp-icon">
+                    <span style="color: white; font-size: 32px;">🔒</span>
+                </div>
+                <div style="font-size: 18px; color: #4a5568; margin-bottom: 15px; font-weight: 500;">
+                    Your Verification Code
+                </div>
+                <div class="otp-code">{{otp}}</div>
+                <p style="color: #718096; margin: 15px 0 0 0; font-size: 14px;">
+                    This code will expire in 10 minutes for security reasons
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3 style="color: #eb7641; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">
+                    Security Tips
+                </h3>
+                <ul style="margin: 0; padding-left: 20px; opacity: 0.9; line-height: 1.8;">
+                    <li style="margin-bottom: 8px;">Never share your verification code with anyone</li>
+                    <li style="margin-bottom: 8px;">Ensure you're on the official HaulAdz website</li>
+                    <li>Enable two-factor authentication for extra security</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 35px;">
+                <p style="color: #718096; margin-bottom: 20px;">
+                    Need assistance? Our support team is here to help!
+                </p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div style="margin-bottom: 20px;">
+                <p style="color: #a0aec0; margin: 0 0 15px 0;">
+                    For any questions, please contact us at:<br>
+                    <a href="mailto:support@showyouradz.com"
+                        style="color: #eb7641; text-decoration: none;">support@showyouradz.com</a>
+                </p>
+            </div>
+            <div style="margin: 25px 0;">
+                <p style="color: #a0aec0; margin: 0 0 15px 0;">Follow us on social media:</p>
+                <div style="margin: 0 auto;">
+                    <a href="https://www.facebook.com/HaulAdz"
+                        style="color: #eb7641; text-decoration: none; margin: 0 10px;">Facebook</a>
+                    <span style="color: #4a5568;">•</span>
+                    <a href="https://twitter.com/hauladz"
+                        style="color: #eb7641; text-decoration: none; margin: 0 10px;">Twitter</a>
+                    <span style="color: #4a5568;">•</span>
+                    <a href="https://linktr.ee/hauladz"
+                        style="color: #eb7641; text-decoration: none; margin: 0 10px;">LinkedIn</a>
+                    <span style="color: #4a5568;">•</span>
+                    <a href="https://www.instagram.com/hauladz"
+                        style="color: #eb7641; text-decoration: none; margin: 0 10px;">Instagram</a>
+                </div>
+            </div>
+            <div style="opacity: 0.7; font-size: 14px; line-height: 1.6; color: #a0aec0;">
+                © 2024 HaulAdz. All rights reserved.<br>
+                <span style="color: #718096;">This is an automated message, please do not reply to this email.</span>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

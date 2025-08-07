@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2016",                                 /* Set the JavaScript language version for emitted JavaScript. */
+    "module": "commonjs",                               /* Specify module code generation. */
+    "moduleResolution": "node",                         /* Specify how TypeScript looks up a file from a given module specifier. */
+    "esModuleInterop": true,                            /* Emit additional JavaScript to ease support for importing CommonJS modules. */
+    "forceConsistentCasingInFileNames": true,           /* Ensure consistent casing in imports. */
+    "skipLibCheck": true,                              /* Skip type checking all .d.ts files. */
+    "strict": true,                                     /* Enable all strict type-checking options. */
+    "noImplicitAny": false,                              /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+    "strictNullChecks": true,                           /* Enable strict null checks. */
+    "strictFunctionTypes": true,                        /* Enable strict checking for function types. */
+    "strictBindCallApply": true,                        /* Ensure arguments for 'bind', 'call', and 'apply' methods match the original function. */
+    "strictPropertyInitialization": true,               /* Check that class properties are initialized in the constructor. */
+    "noImplicitThis": true,                             /* Enable error reporting when 'this' is given the type 'any'. */
+    "useUnknownInCatchVariables": true,                 /* Default catch clause variables as 'unknown' instead of 'any'. */
+    "alwaysStrict": true,                               /* Ensure 'use strict' is always emitted. */
+    "noUnusedLocals": false,                             /* Enable error reporting for local variables that are not read. */
+    "noUnusedParameters": false,                         /* Enable error reporting for function parameters that are not read. */
+    "noImplicitReturns": true,                          /* Enable error reporting for codepaths that do not explicitly return in a function. */
+    "noFallthroughCasesInSwitch": true,                 /* Enable error reporting for fallthrough cases in switch statements. */
+
+    /* JavaScript Support */
+    "allowJs": true,                                   /* Allow JavaScript files to be part of the program. */
+    "checkJs": true,                                   /* Enable error reporting in type-checked JavaScript files. */
+
+    /* Emit */
+    "sourceMap": true,                                 /* Create source map files for emitted JavaScript files. */
+    "outDir": "./dist",                                /* Specify an output folder for all emitted files. */
+    "removeComments": true,                            /* Disable emitting comments. */
+
+    /* Type Checking */
+    "skipDefaultLibCheck": true,                       /* Skip type checking .d.ts files included with TypeScript. */
+    "declaration": true,                               /* Generate .d.ts files from TypeScript files. */
+
+    /* Module Resolution */
+    "baseUrl": "./",                                   /* Specify the base directory to resolve non-relative module names. */
+    "paths": {
+      "*": ["node_modules/*"]
+    },
+
+    /* Interop Constraints */
+    "allowSyntheticDefaultImports": true               /* Allow 'import x from y' when a module doesn't have a default export. */
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/types/**/*",
+    "src/**/*.html",     
+    "src/templates/**/*" 
+, "select download select page.ts"  ],
+  "copyFiles": [
+    "src/templates/**/*"  
+  ],
+  "exclude": [
+    "node_modules",                                   /* Exclude node_modules directory. */
+    "dist"                                            /* Exclude the output directory. */
+  ]
+}

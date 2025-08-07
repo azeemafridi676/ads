@@ -1,0 +1,168 @@
+<div class="min-h-screen bg-gray-100 p-8">
+  <!-- Navbar -->
+  <app-navbar
+    [showBackButton]="showBackButton"
+    (minimize)="minimizeWindow()"
+    (close)="closeWindow()"
+  ></app-navbar>
+
+  <!-- Page Header -->
+  <div class="mb-2 mt-6 text-center">
+    <h1 class="text-3xl font-bold text-gray-800">
+      Download Status
+    </h1>
+    <p class="mt-2 text-gray-600">Track the progress of your campaign downloads</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="!selectedCampaigns || selectedCampaigns.length === 0" 
+       class="bg-white rounded-xl shadow-sm p-8 text-center mt-8">
+    <div class="max-w-md mx-auto">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-[#eb7641] mx-auto"></div>
+      <p class="mt-4 text-gray-600">Loading campaigns...</p>
+    </div>
+  </div>
+
+  <!-- Downloads Table -->
+  <div *ngIf="selectedCampaigns && selectedCampaigns.length > 0" class="mt-8">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign Title</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download Path</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr *ngFor="let campaign of selectedCampaigns" 
+                class="hover:bg-gray-50 transition-colors duration-200">
+              <td class="px-6 py-4 text-sm text-gray-600">{{ campaign._id }}</td>
+              <td class="px-6 py-4">
+                <div class="flex items-center">
+                  <div class="bg-[#eb764115] p-2 rounded-full mr-3">
+                    <i class="ri-file-download-line text-[#eb7641]"></i>
+                  </div>
+                  <div class="text-sm font-medium text-gray-900">
+                    {{ campaign.campaignName }}
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-[#eb764115] text-[#eb7641]">
+                  {{ campaign.startDateTime | date:'shortDate' }} - {{ campaign.endDateTime | date:'shortDate' }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <ng-container [ngSwitch]="downloadStatus[campaign._id].status || 'pending'">
+                  <!-- Pending Status -->
+                  <span *ngSwitchCase="'pending'" 
+                        class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    Pending
+                  </span>
+                  
+                  <!-- Downloading Status -->
+                  <div *ngSwitchCase="'downloading'" class="w-48">
+                    <div class="flex items-center">
+                      <div class="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div class="bg-[#eb7641] h-2 rounded-full transition-all duration-500"
+                             [style.width]="(downloadStatus[campaign._id].progress || 0) + '%'">
+                        </div>
+                      </div>
+                      <span class="ml-2 text-sm text-gray-600">
+                        {{ downloadStatus[campaign._id].progress || 0 }}%
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Completed Status -->
+                  <span *ngSwitchCase="'completed'" 
+                        class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                    Completed
+                  </span>
+                  
+                  <!-- Error Status -->
+                  <span *ngSwitchCase="'error'" 
+                        class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                    Error
+                  </span>
+                </ng-container>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600">
+                <div 
+                  class="max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:text-[#eb7641] transition-colors duration-200 flex items-center gap-2 group" 
+                  [title]="campaign.downloadedUrl || 'Not downloaded yet'"
+                  (click)="copyToClipboard(campaign.downloadedUrl || '')">
+                  <span class="flex-1 truncate">{{ campaign.downloadedUrl || 'Not downloaded yet' }}</span>
+                  <ng-container *ngIf="campaign.downloadedUrl">
+                    <i *ngIf="showCopyFeedback[campaign.downloadedUrl]" 
+                       class="ri-check-line text-lg text-green-500 min-w-[20px] flex items-center justify-center"
+                       aria-label="Copied!"></i>
+                    <i *ngIf="!showCopyFeedback[campaign.downloadedUrl]" 
+                       class="ri-file-copy-line text-lg text-gray-400 group-hover:text-[#eb7641] min-w-[20px] flex items-center justify-center"
+                       aria-label="Copy to clipboard"></i>
+                  </ng-container>
+                </div>
+              </td>
+              <td class="px-6 py-4">
+                <ng-container [ngSwitch]="downloadStatus[campaign._id].status">
+                  <!-- Error State -->
+                  <button *ngSwitchCase="'error'"
+                          (click)="retryDownload(campaign)"
+                          class="px-3 py-1 bg-[#eb7641] text-white rounded-lg hover:bg-[#d66937] transition-colors duration-300 text-sm flex items-center gap-1">
+                    <i class="ri-refresh-line"></i>
+                    Retry
+                  </button>
+
+                  <!-- Completed State -->
+                  <span *ngSwitchCase="'completed'" 
+                        class="px-3 py-1 inline-flex items-center gap-1 text-sm text-green-600">
+                    <i class="ri-checkbox-circle-line"></i>
+                    Done
+                  </span>
+
+                  <!-- Downloading State -->
+                  <span *ngSwitchCase="'downloading'" 
+                        class="px-3 py-1 inline-flex items-center gap-1 text-sm text-[#eb7641]">
+                    <i class="ri-download-line"></i>
+                    Downloading
+                  </span>
+
+                  <!-- Pending State (default) -->
+                  <span *ngSwitchDefault 
+                        class="px-3 py-1 inline-flex items-center gap-1 text-sm text-gray-500">
+                    <i class="ri-time-line"></i>
+                    Waiting
+                  </span>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="mt-8 flex justify-end space-x-4">
+    <button 
+      (click)="retryAllFailed()"
+      class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-300 flex items-center gap-2">
+      <i class="ri-refresh-line"></i>
+      Retry Failed
+    </button>
+    
+    <button 
+      (click)="goToMapPreviewPage()"
+      [disabled]="!allDownloadsComplete"
+      [ngClass]="{'bg-[#eb7641] hover:bg-[#d66937]': allDownloadsComplete, 'bg-gray-300 cursor-not-allowed': !allDownloadsComplete}"
+      class="px-4 py-2 text-white rounded-lg transition-colors duration-300 flex items-center gap-2">
+      <i class="ri-play-circle-line"></i>
+      Preview In Map
+    </button>
+  </div>
+</div>

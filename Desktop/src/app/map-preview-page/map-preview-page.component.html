@@ -1,0 +1,26 @@
+<div class="map-container">
+    <app-navbar 
+        [showBackButton]="showBackButton" 
+        (minimize)="minimizeWindow()" 
+        (close)="closeWindow()">
+    </app-navbar>
+    
+    <google-map 
+        *ngIf="isGoogleMapsLoaded" 
+        [options]="mapOptions" 
+        width="100%" 
+        height="100vh">
+    </google-map>
+    
+    <div *ngIf="!isGoogleMapsLoaded" class="loading">
+        Loading map...
+    </div>
+
+    <!-- Start Playing Button -->
+    <button 
+        (click)="goToVideoPlayPage()"
+        class="start-playing-button">
+        <i class="ri-play-circle-line mr-2"></i>
+        Start Playing
+    </button>
+</div>
