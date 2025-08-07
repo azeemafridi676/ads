@@ -370,21 +370,21 @@ Where:
 3. **Run the servers:**
    - **Frontend:**
      ```bash
-     ng serve
+     npm start
      ```
    - **Backend:**
      ```bash
-     npm start
+     npm run dev
      ```
    - **Electron:**
      ```bash
-     npm run electron:start
+     npm run electron-dev
      ```
 
 4. **Access the platform:**
    - Frontend: [http://localhost:4200](http://localhost:4200)
    - Backend API: [http://localhost:3000/api/](http://localhost:3000/api/)
-   - Electron: Follow on-screen instructions for connection, campaign selection, and playback.
+   - Electron: Auto Opens when `npm run electron-dev` then Follow on-screen instructions for connection, campaign selection, and playback.
 
 ---
 
